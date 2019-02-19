@@ -1,55 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="nouislider.js"></script>
-    <script src="wNumb.js"></script>
-    <script type="text/javascript" src="depths.json"></script>
-
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="nouislider.css">
-	<link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
-
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<style>
-    #slider {
-        width: 50%;
-    }
-    </style>
-<link href="NAKFI.css" rel="stylesheet" type="text/css">
-</head>
-<body>
-    <div class="parent">
-      <div class="superbar">
-        <div class="topbar"></div>
-        <div class="sidebar">
-          <h6>TEMPERATURE</h6>
-          <div class="slider" id="tempSlider"></div>
-          <h6>OXYGEN </h6>
-          <div class="slider" id="oxySlider"></div>
-          <h6>SALINITY</h6>
-          <div class="slider" id="saltSlider"></div>
-            <h6>YEAR</h6>
-
-            <div class="slider" id="yearSlider"></div>
-			<div >
-				<h6 style="margin-top: 30px">Choose Basin</h6>
-				<select id="basin-menu" class="menu">
-					<option value="0">World</option>
-					<option value="1">Pacific</option>
-				</select>
-			</div>
-			<button onclick="buttonClick()">Get the data</button>
-            <button onclick="buttonPlot()">Show the data</button>
-            <p id='ready'>Data status:</p>
-          </div>
-      </div>
-    </div>
-<p id='demo'></p>
-<script>
 var long_min = -97.5 , long_max = 20.5, lat_min = -.5 , lat_max = 60.5 ;
-var data, depthData = {long:[0], lat:[0], depth:[0]}, depthDataArray;  
+var data, depthData = [];  
 var tempSlider = document.getElementById('tempSlider'), oxySlider = document.getElementById('oxySlider'), saltSlider = document.getElementById('saltSlider'), yearSlider = document.getElementById('yearSlider');
 var filterData = [];
 var checkboxSalt = document.getElementById('checkboxSalt'),
@@ -60,7 +10,7 @@ var checkboxSalt = document.getElementById('checkboxSalt'),
     });*/
 
 noUiSlider.create(tempSlider, {
-    start: [0, 35],
+    start: [0, 1],
     connect: true,
         tooltips: [wNumb({decimals: 0}),wNumb({decimals: 0})],
 
@@ -83,7 +33,7 @@ noUiSlider.create(tempSlider, {
 
 //Oxygen Slider
 noUiSlider.create(oxySlider, {
-    start: [200, 220],
+    start: [200, 250],
     connect: true,
         tooltips: [wNumb({decimals: 0}),wNumb({decimals: 0})],
     step:1,
@@ -105,7 +55,7 @@ noUiSlider.create(oxySlider, {
 
 //Salt Slider
 noUiSlider.create(saltSlider, {
-    start: [33, 35],
+    start: [25, 26],
     tooltips: [wNumb({decimals: 0}),wNumb({decimals: 0})],
     connect: true,
     range: {
@@ -142,37 +92,14 @@ noUiSlider.create(saltSlider, {
 		density: 4
 	}
 });
-          function getBath() {
-              const Http = new XMLHttpRequest();
-                    const url='https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/depths.json'
-                    Http.open("GET", url);
-                    Http.send();
-                    Http.onreadystatechange=(e)=>{
-                        if(Http.readyState == 2 ){
-                          document.getElementById('ready').innerHTML = 'Data status: downloading';  
-                        }
-                        if (Http.readyState == 4 && Http.status == 200){
-                        document.getElementById('ready').innerHTML = 'Data status: ready';
-                        console.log(url);
-                        depthDataArray = JSON.parse(Http.responseText);
-                        
-                        for(i in depthDataArray){
-                            depthData.long[i] = depthDataArray[i].long;
-                            depthData.lat[i] = depthDataArray[i].lat;
-                            depthData.depth[i] = depthDataArray[i].depth;
-
-                            
-                        }
-          }}};
           function buttonClick() {
-              getBath();
               var basinMenu = document.getElementById("basin-menu");
               var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
               console.log(basinValue);
               document.getElementById('ready').innerHTML = 'Data status: '; 
               var tempValues = tempSlider.noUiSlider.get(), oxyValues = oxySlider.noUiSlider.get(), saltValues = saltSlider.noUiSlider.get(), selectYear = yearSlider.noUiSlider.get();
-                const Http = new XMLHttpRequest();
-                    const url='https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + tempValues[0] + '&max_temp=' + tempValues[1] + '&min_salt=' + saltValues[0] + '&max_salt=' + saltValues[1] + '&min_o2=' + oxyValues[0] + '&max_o2=' + oxyValues[1] + '&min_year=' + selectYear + '&max_year=' + selectYear + '&basin='+ basinValue;
+                var Http = new XMLHttpRequest();
+                    var url='https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + tempValues[0] + '&max_temp=' + tempValues[1] + '&min_salt=' + saltValues[0] + '&max_salt=' + saltValues[1] + '&min_o2=' + oxyValues[0] + '&max_o2=' + oxyValues[1] + '&min_year=' + selectYear + '&max_year=' + selectYear + '&basin='+ basinValue;
                     Http.open("GET", url);
                     Http.send();
                     Http.onreadystatechange=(e)=>{
@@ -222,7 +149,7 @@ noUiSlider.create(saltSlider, {
               },
                zaxis: {
                nticks: 10,
-               range: [-5000, 0],
+               range: [-1000, 1],
                title: 'Depth',
               },
                     camera:{
@@ -233,15 +160,15 @@ noUiSlider.create(saltSlider, {
                         }
                     }
             }};
-            var dataset = [{
+            var dataset = [/*{
                 opacity:1,
                 type: 'mesh3d',
                 x:longDepth, y:latDepth, z:oceanDepth,
                 showscale:false,
                 cmin:-6000,
                 cmax:100,
-                color: oceanDepth,
-                intensity:oceanDepth,
+                color: ocean_depth,
+                intensity:ocean_depth,
                 colorscale: [
                     ['0', 'rgb(10,10,140)'],
                     ['.96', 'rgb(100,180,240)'],
@@ -249,7 +176,7 @@ noUiSlider.create(saltSlider, {
                     ['1', 'rgb(210,180,140)']
                     ],
                 hoverinfo: 'none',
-                },
+                },*/
                {opacity:1,
                 type: 'scatter3d',
                 mode: 'markers',
@@ -257,11 +184,10 @@ noUiSlider.create(saltSlider, {
                 
                 marker: {
                     size:5,
-                    cmin: -1000,
-                    cmax: 0,
+                    cmin: -1000 ,
+                    cmax: -10,
                     colorscale: 'rdBu',
                     intensity: depth,
-                    color: depth
                },
                 hovertext: year
                 
@@ -287,15 +213,6 @@ function buttonPlot(){
     data.depth[i] = -(data.depth[i]);
     data.lon[i] = data.lon[i] - 180;
 }
-    makePlotly(data.lat, data.lon, data.depth, data.year, depthData.long, depthData.lat, depthData.depth);
+    makePlotly(data.lat, data.lon, data.depth, data.year);
         console.log(data)
           }
-
-
-  </script>
-<div id='myDiv'></div>
-
- 
- 
-</body>
-</html>
