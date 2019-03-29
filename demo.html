@@ -36,32 +36,48 @@
 			<div >
 				<h6 style="margin-top: 30px">Choose Basin</h6>
 				<select id="basin-menu" class="menu">
-					<option value="0">World</option>
-					<option value="1">Pacific</option>
-                    <option value="2">Atlantic</option>
-                    <option value="3">Indian</option>
-                    <option value="4">Arctic</option>
-                    <option value="5">Mediterranean Sea</option>
-                    <option value="6">Caspian Lake</option>
-                    <option value="7">Black Sea</option>
-                    <option value="8">Red Sea</option>
+					<option value="0" id="world">World</option>
+					<option value="1" id="northPacific">North Pacific</option>
+                    <option value="1" id="southPacific">South Pacific</option>
+                    <option value="2" id="Atlantic">Atlantic</option>
+                    <option value="3" id="Indian">Indian</option>
+                    <option value="4" id="Arctic">Arctic</option>
+                    <option value="5" id="Mediterranean">Mediterranean Sea</option>
+                    <option value="6" id="caspian">Caspian Sea</option>
+                    <option value="7" id="blackSea">Black Sea</option>
+                    <option value="8" id="redSea">Red Sea</option>
 				</select>
 			</div>
 			<button onclick="buttonClick()">Get the data</button>
             <button onclick="buttonPlot()">Show the data</button>
-                        <button onclick="setSpeciesOne()">Set Species 1</button>
-                                    <button onclick="setSpeciesTwo()">Set Species 2</button>
-                                    <button onclick="overlapPlot()">plot the overlap</button>
-
+                        <button onclick="saveDataset(data)">Save Data</button>
 
             <p id="ready">Data status:</p>
             <p id="size">Data Size:</p>
 
-			  <button onclick="w3_open()">Bathymetry Options</button>
+			  <button onclick="w3_open(1)">Viewer Options</button>
+                        <button onclick="w3_open(2)">Saved Data</button>
 
-			<div class="w3-sidebar w3-bar-block w3-dark-grey w3-animate-left" style="display:none" id="mySidebar">
-                <p>Opacity</p>
+			<div class="w3-sidebar w3-bar-block w3-dark-grey w3-animate-left" style="display:none" id="1">
+                <p>Bathymetry Opacity</p>
                 <div class="slider" id="opacitySlider"></div>
+                <p>Depth Range</p>
+                <div class="slider" id="depthSlider"></div>
+</div>
+
+
+            <div class="w3-sidebar w3-bar-block w3-dark-grey w3-animate-left" style="display:none" id="2">
+            <select id="saveList"></select>
+            <button onclick="loadDataset()">Load Data</button>
+            <div>
+                <h6>Compare Datasets</h6>
+                
+                <select id="speciesList1"></select>
+                <select id="speciesList2"></select>
+                <button onclick="overlapPlot()">Calculate Overlap</button>
+
+                
+                </div>
 </div>
           </div>
       </div> 
@@ -69,25 +85,26 @@
 <p id='demo'></p>
 <script>
 var long_min = -97.5 , long_max = 20.5, lat_min = -.5 , lat_max = 60.5 ;
-var data, depthData = {long:[0], lat:[0], depth:[0]}, depthDataArray;  
-var tempSlider = document.getElementById('tempSlider'), oxySlider = document.getElementById('oxySlider'), saltSlider = document.getElementById('saltSlider'), yearSlider = document.getElementById('yearSlider'), opacitySlider = document.getElementById('opacitySlider');
+var data, savedData = {name:[], data:[]}, dataUnfiltered, data1 = {}, depthData = {long:[0], lat:[0], depth:[0]}, depthDataArray;  
+var tempSlider = document.getElementById('tempSlider'), oxySlider = document.getElementById('oxySlider'), saltSlider = document.getElementById('saltSlider'), yearSlider = document.getElementById('yearSlider'), opacitySlider = document.getElementById('opacitySlider'), depthSlider = document.getElementById('depthSlider');
 var filterData = [], isOpen =false;
-    var speciesOne, speciesTwo, overlap = {depth:[0], lon:[0], lat:[0], year:[0]};
+    var speciesOne, speciesTwo, overlap = {depth:[], lon:[], lat:[], year:[]};
 var checkboxSalt = document.getElementById('checkboxSalt'),
     checkboxTemp = document.getElementById('checkboxTemp'),
     checkboxOxy = document.getElementById('checkboxOxy');
+var saveList = document.getElementById("saveList"), speciesList1 = document.getElementById("speciesList1"), speciesList2 = document.getElementById("speciesList2") ;
 /*d3.csv("https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/depths.csv", function(rows) {
     depthData.push(rows);
     });*/
-function w3_open() {
+function w3_open(id) {
     var i = 0;
     if(!isOpen && i==0){
-        document.getElementById("mySidebar").style.display = "block";
+        document.getElementById(id).style.display = "block";
         isOpen = true;
         i++;
     }
     if(isOpen && i==0){
-        document.getElementById("mySidebar").style.display = "none";
+        document.getElementById(id).style.display = "none";
         isOpen = false;
         i++;
     }
@@ -191,6 +208,26 @@ noUiSlider.create(saltSlider, {
 		density: 4
 	}
 });
+    noUiSlider.create(depthSlider, {
+    start: [0, 3000],
+    connect: true,
+        tooltips: [wNumb({decimals: 0}),wNumb({decimals: 0})],
+
+    range: {
+        'min': 0,
+        'max': 5000,
+    },
+    step: 25,
+	pips: {
+		mode:'positions',
+		values: [0, 25, 50, 75, 100],
+		density: 4
+	}
+});
+          var tempSnapValues = [
+    document.getElementById('temp-slider-value-lower'),
+    document.getElementById('temp-slider-value-upper')
+];
           function getBath() {
               const Http = new XMLHttpRequest();
                     const url='https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/depths.json'
@@ -235,9 +272,14 @@ noUiSlider.create(saltSlider, {
                         document.getElementById('ready').innerHTML = 'Data status: ready';
                         console.log(url);
                         data = JSON.parse(Http.responseText);
+                        dataUnfiltered = JSON.parse(Http.responseText);
                         for(i in data.depth) {
                             data.depth[i] = -(data.depth[i]);
                             data.lon[i] = data.lon[i] - 180;
+}
+                            for(i in dataUnfiltered.depth) {
+                            dataUnfiltered.depth[i] = -(dataUnfiltered.depth[i]);
+                            dataUnfiltered.lon[i] = dataUnfiltered.lon[i] - 180;
 }
                         
                         console.log(data);
@@ -246,14 +288,22 @@ noUiSlider.create(saltSlider, {
                     }
           };
     function setSpeciesOne(){
-        speciesOne = data;
+        var saveSelect = speciesList1.options[speciesList1.selectedIndex].value;
+
+        speciesOne = JSON.parse(JSON.stringify(savedData.data[saveSelect]))
+;
         console.log(speciesOne);
     }
     function setSpeciesTwo(){
-        speciesTwo = data;
+        var saveSelect = speciesList2.options[speciesList2.selectedIndex].value;
+
+        speciesTwo = JSON.parse(JSON.stringify(savedData.data[saveSelect]))
+;
         console.log(speciesTwo);
     }
     function compareSpecies(){
+        setSpeciesOne();
+        setSpeciesTwo();
             overlap = {depth:[0], lon:[0], lat:[0], year:[0]}
             for(i = 0; i<speciesOne.depth.length; i++){
             for(j = 0; j<speciesTwo.depth.length; j++){
@@ -272,17 +322,20 @@ noUiSlider.create(saltSlider, {
           function makePlotly( lat, long, depth, year, longDepth, latDepth, oceanDepth){
               var basinMenu = document.getElementById("basin-menu");
               var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
+              var basinId = basinMenu.options[basinMenu.selectedIndex].id;
+              console.log(basinId);
+
               var opacityValue = (opacitySlider.noUiSlider.get())/100;
               console.log(opacityValue, lat);
               
               if(basinValue=="0"){
                   var bound1 = -179, bound2 = 179, bound3 = -89, bound4 = 89;
               }
-              if(basinValue=="1"){
-                  var bound1 = -90, bound2 = 114, bound3 = -90, bound4 = 67;
+              if(basinId == "northPacific"){
+                  var bound1 = -90, bound2 = 114, bound3 = -10, bound4 = 67;
               }
-              if(basinValue=="2"){
-                  var bound1 = -90, bound2 = 114, bound3 = -90, bound4 = 67;
+              if(basinId == "southPacific"){
+                  var bound1 = -90, bound2 = 114, bound3 = -90, bound4 = 10;
               }
               var plotDiv = document.getElementById("plot");
 
@@ -360,7 +413,7 @@ noUiSlider.create(saltSlider, {
                     ],
                 }
               ];
-  Plotly.newPlot('myDiv', dataset, layout);
+  Plotly.newPlot('myDiv', dataset, layout, {responsive:true});
 };
 function timeForward(){
     
@@ -375,7 +428,50 @@ function toggle(element) {
         element.removeAttribute('disabled');
     }
 }
+function filterByDepth(){
+    var depthRange = depthSlider.noUiSlider.get();
+    data1 = JSON.parse(JSON.stringify(data));
+    console.log(dataUnfiltered);
+    console.log(data1);
+    for(var i = 1; i<data1.depth.length; i++){
+        if(data1.depth[i] > -depthRange[0] || data1.depth[i] < -depthRange[1]){
+            data1.depth.splice(i, 1);
+            data1.lat.splice(i, 1);
+            data1.lon.splice(i, 1);
+            data1.o2.splice(i, 1);
+            data1.salt.splice(i, 1);
+            data1.temp.splice(i, 1);
+            data1.year.splice(i, 1);
+            i--;
+        }
+    }
+    console.log(data1, dataUnfiltered);
+}
+function saveDataset(dataset){
+    var name = prompt("Please enter a name for this data");
+    savedData.data.push(dataset);
+    savedData.name.push(name);
+    var opt = savedData.name[savedData.name.length-1];
+    var el = document.createElement("option");
+    el.textContent = opt;
+    el.value = savedData.name.length - 1;
+    var el1 = document.createElement("option");
+    el1.textContent = opt;
+    el1.value = savedData.name.length - 1;
+    var el2 = document.createElement("option");
+    el2.textContent = opt;
+    el2.value = savedData.name.length - 1;
+    saveList.add(el);
+    speciesList1.add(el1);
+    speciesList2.add(el2);
+}
+function loadDataset(){
+    var saveSelect = saveList.options[saveList.selectedIndex].value;
+    data = JSON.parse(JSON.stringify(savedData.data[saveSelect]))
+}
 function buttonPlot(){
+    filterByDepth();
+    let data = data1;
     makePlotly(data.lat, data.lon, data.depth, data.year, depthData.long, depthData.lat, depthData.depth);
         console.log(data)
           }
