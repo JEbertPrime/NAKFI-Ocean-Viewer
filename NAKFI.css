@@ -1,4 +1,7 @@
-
+html, body {
+    height: 100%;
+    margin: 0px;
+}
 .sidebar {
     height: 100%;
     width: 90%;
@@ -6,9 +9,18 @@
     margin-top: 40px;
     margin:auto;
     padding-right: 20px;
+    padding-left: 10px;
 }
 .slider {
     margin-bottom: 50px;
+    margin-left: 10px;
+    width: 80%
+}
+#oxySlider .noUi-connect {
+    background: #78B0F4;
+}
+#tempSlider .noUi-connect {
+    background: #C14741;
 }
 .topbar {
     height: 3vw;
@@ -19,7 +31,7 @@
     background-color: #2F2E2F;
 }
 .superbar {
-      height: 100vw;
+      height: 100%;
   width: 17vw;
   position: fixed;
   z-index: 1;
@@ -28,21 +40,23 @@
   background-color: #4B4B4B;
 float:left;
 padding:0px;
-    overflow: hidden;
+    overflow: scroll;
+    overflow-x: hidden;
 }
 .sidebar p{
     color: #FFF;
 }
 #myDiv {
     float: right;
-    width: 100%;
-    height: 100%
+    width: 83vw;
+    height: 100%;
 }
 h1 {
     color: white;
-    font-size: 24px;
+    font-size: 1.2vw;
     padding: 10px;
     font-family: 'Muli', sans-serif;
+    font-weight: 100;
 
 }
 h6 {
@@ -50,11 +64,31 @@ h6 {
     font-size: 10px;
     margin-bottom: 2px;
     font-family: 'Muli', sans-serif;
+    letter-spacing: 1em;
 
 }
 button {
     margin-top: 30px;
 }
+.button{
+    background-color: #E1E1D5;
+    border-radius:2px;
+    border: none;
+    font-family: 'Muli', sans-serif;
+     -webkit-transition-duration: 0.2s; /* Safari */
+    transition-duration: 0.2s;
+}
+.button:hover{
+}
+.button:active{
+    background-color: #D2D3CF;
+    -webkit-transition-duration: 0.1s; /* Safari */
+    transition-duration: 0.1s;
+}
 .menu {
     margin-top: 10px;
 }
+::-webkit-scrollbar {
+  width: 1px;
+}
+

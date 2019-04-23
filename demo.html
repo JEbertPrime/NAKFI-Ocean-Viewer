@@ -13,18 +13,14 @@
 	<link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
 
         <script src="plotly.js"></script>
-<style>
-    #slider {
-        width: 50%;
-    }
-    </style>
+
 <link href="NAKFI.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-    <div class="parent">
+    <div class="parent" id="parent">
       <div class="superbar" id="superbar">
         <div class="topbar">
-          <h1>MAPPING THE DEEP</h1></div>
+          <h1>mapping the deep</h1></div>
         <div class="sidebar" id="sidebar">
           <h6>TEMPERATURE</h6>
           <div class="slider" id="tempSlider"></div>
@@ -50,15 +46,15 @@
                     <option value="8" id="redSea">Red Sea</option>
 				</select>
 			</div>
-			<button onclick="buttonClick()">Get the data</button>
-            <button onclick="buttonPlot()">Show the data</button>
-                        <button onclick="saveDataset(data)">Save Data</button>
+			<button class="button" onclick="buttonClick()">Get the data</button>
+            <button class="button" onclick="buttonPlot()">Show the data</button>
+                        <button class="button" onclick="saveDataset(data)">Save Data</button>
 
             <p id="ready">Data status:</p>
             <p id="size">Data Size:</p>
 
-			  <button onclick="w3_open(1)">Viewer Options</button>
-                        <button onclick="w3_open(2)">Saved Data</button>
+			  <button class="button" onclick="w3_open(1)">Viewer Options</button>
+                        <button class="button" onclick="w3_open(2)">Saved Data</button>
 
 			<div class="w3-sidebar w3-bar-block w3-dark-grey w3-animate-left" style="display:none" id="1">
                 <p>Bathymetry Opacity</p>
@@ -70,13 +66,13 @@
 
             <div class="w3-sidebar w3-bar-block w3-dark-grey w3-animate-left" style="display:none" id="2">
             <select id="saveList"></select>
-            <button onclick="loadDataset()">Load Data</button>
+            <button class="button" onclick="loadDataset()">Load Data</button>
             <div>
                 <h6>Compare Datasets</h6>
                 
                 <select id="speciesList1"></select>
                 <select id="speciesList2"></select>
-                <button onclick="overlapPlot()">Calculate Overlap</button>
+                <button class="button" onclick="overlapPlot()">Calculate Overlap</button>
 
                 
                 </div>
@@ -343,7 +339,6 @@ noUiSlider.create(saltSlider, {
 
                 var layout = {
                     autosize:true,
-                    height: 700,
               scene:{
                  aspectmode: "manual",
                aspectratio: {
@@ -360,7 +355,7 @@ noUiSlider.create(saltSlider, {
                 title: 'Latitude',
               },
                zaxis: {
-               nticks: 10,
+               nticks: 3,
                range: [-6000, 0],
                title: 'Depth',
               },
@@ -471,14 +466,6 @@ function loadDataset(){
     var saveSelect = saveList.options[saveList.selectedIndex].value;
     data = JSON.parse(JSON.stringify(savedData.data[saveSelect]))
 }
-var sidebar = document.getElementById("superbar");
-new slimScroll(sidebar, {
-    'wrapperClass': 'scroll-wrapper unselectable mac',
-                        'scrollBarContainerClass': 'scrollBarContainer',
-                        'scrollBarContainerSpecialClass': 'animate',
-                        'scrollBarClass': 'scroll',
-                        'keepFocus': true
-});
 function buttonPlot(){
     filterByDepth();
     let data = data1;
@@ -494,6 +481,8 @@ function overlapPlot(){
 
   </script>
 <div id="myDiv">
+
+</div
     </div>
 
  
