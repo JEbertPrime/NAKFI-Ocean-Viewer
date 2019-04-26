@@ -9,10 +9,14 @@
     <script type="text/javascript" src="depths.json"></script>
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="nouislider.css">
+    <link rel="stylesheet" type="text/css" href="nouislider.css">
 	<link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
+    <script src="plotly.js"></script>
+    <script src="selectMap.js"></script>
+    <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+    <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
 
-        <script src="plotly.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
 
 <link href="NAKFI.css" rel="stylesheet" type="text/css">
 </head>
@@ -57,10 +61,12 @@
                         <button class="button" onclick="w3_open(2)">Saved Data</button>
 
 			<div class="w3-sidebar w3-bar-block w3-dark-grey w3-animate-left" style="display:none" id="1">
-                <p>Bathymetry Opacity</p>
+                <h6>Bathymetry Opacity</h6>
                 <div class="slider" id="opacitySlider"></div>
-                <p>Depth Range</p>
+                <h6>Depth Range</h6>
                 <div class="slider" id="depthSlider"></div>
+                <h6>Select Custom Latitude/Longitude Range</h6>
+                <div id="rangeMap"></div>
 </div>
 
 
@@ -477,7 +483,7 @@ function overlapPlot(){
     makePlotly(overlap.lat, overlap.lon, overlap.depth, overlap.year, depthData.long, depthData.lat, depthData.depth);
         console.log(overlap)
           }
-
+var rangeMap = new selectMap("rangeMap");
 
   </script>
 <div id="myDiv">

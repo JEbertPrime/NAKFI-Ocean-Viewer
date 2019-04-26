@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>svg{width:100%;height:500px;margin:0px auto;}</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://unpkg.com/topojson-client@3"></script>
+<script src="https://d3js.org/d3-geo.v1.min.js"></script>
+<script src="map.js"></script>
+<script>
+var svg = d3.select("body").append("svg");
+var path = d3.geo.path().projection(d3.geoEquirectangular());
+d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function(error, world) {
+  if (error) throw error;
+  svg.selectAll("path")
+     .data(topojson.feature(world,world.objects.countries).features)
+     .enter().append("path")
+     .attr("d", path);
+});
+    d3.select("svg").on("mousedown.log", function() {
+  console.log(d3.geoEquirectangular().invert(d3.mouse(this)));
+});
+    d3.select("svg").on("mouseup.log", function() {
+  console.log(d3.geoEquirectangular().invert(d3.mouse(this)));
+});
+</script>
