@@ -1,0 +1,53 @@
+<html>
+
+
+<script>
+    json1 = {
+        long:[
+            100,110,130,140,150,160, 110
+        ],
+        lat:[
+            90, -90, 40, -40,60, -60, 40
+        ],
+        depth:[
+            -100, -200, -300, -400, -500, -600
+        ]
+    }
+    json2 = {
+        long:[
+            100,130,150,160
+        ],
+        lat:[
+            90, 40,60, -60
+        ],
+        depth:[
+            -100, -300, -500, -600
+        ]
+    }
+    function getAllIndexes(arr, val) {
+        var indexes = [], i = -1;
+        while ((i = arr.indexOf(val, i+1)) != -1){
+            indexes.push(i);
+        }
+        return indexes;
+    }
+
+
+    uniqueLong = [...new Set(json1.long)];
+    
+    var finalArray = [];
+    for(i in uniqueLong){
+        console.log(i)
+        let indexes = getAllIndexes(json1.long, uniqueLong[i])
+        let latitudes = []
+        for(index in indexes){
+            latitudes[index] = json1.lat[indexes[index]];
+            depths[index] = json1.
+        }
+        console.log(latitudes)
+    }
+
+    
+
+</script>
+</html>

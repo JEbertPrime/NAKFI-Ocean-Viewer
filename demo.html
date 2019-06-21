@@ -77,7 +77,7 @@
             <div class="w3-sidebar w3-bar-block w3-dark-grey w3-animate-left" style="display:none" id="2">
             <div><h6>Load Saved Parameters</h6>
                 <select id="saveList"></select>
-            <button class="button" onclick="loadDataset()">Load Data</button>
+            <button class="button" onclick="loadDataset()">Load Parameters</button>
                 </div>
             <div>
                 <h6>Compare Datasets (select data and year)</h6>
@@ -97,7 +97,7 @@
     </div>
 <p id='demo'></p>
 <script>
-var data, savedData = {name:[], data:[], params:[]}, views = {name:[],view:[]}, dataUnfiltered, data1 = {}, depthData = {long:[0], lat:[0], depth:[0]}, depthDataArray;  
+var data, savedData = {name:[], data:[], params:[]}, views = {name:[],view:[]}, dataUnfiltered, data1 = {}, depthData = {long:[], lat:[], depth:[]}, depthDataArray, speciesOneYear = 1861, speciesTwoYear = 1861;  
 var tempSlider = document.getElementById('tempSlider'), oxySlider = document.getElementById('oxySlider'), saltSlider = document.getElementById('saltSlider'), yearSlider = document.getElementById('yearSlider'), opacitySlider = document.getElementById('opacitySlider'), depthSlider = document.getElementById('depthSlider'), allSliderValues;
 var filterData = [], isOpen =false, firstPlot=false;
     var speciesOne, speciesTwo, overlap = {depth:[], lon:[], lat:[], year:[]};
@@ -238,7 +238,7 @@ noUiSlider.create(saltSlider, {
         'min': 0,
         'max': 5000,
     },
-    step: 25,
+    step: 10,
 	pips: {
 		mode:'positions',
 		values: [0, 25, 50, 75, 100],
@@ -250,8 +250,14 @@ noUiSlider.create(saltSlider, {
     document.getElementById('temp-slider-value-upper')
 ];
           function getBath() {
-              const Http = new XMLHttpRequest();
-                    const url='http://temp.justinebert.com/depths.json'
+               d3.csv("https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/bathymetry_60min.csv", function(d){
+                      depthData.lat.push(d.lat)
+                      depthData.long.push(parseFloat(d.long) + 180)
+                      depthData.depth.push(d.ocean_depth)
+                  
+              })
+              /*const Http = new XMLHttpRequest();
+                    const url='https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/depths.json'
                     Http.open("GET", url);
                     Http.send();
                     Http.onreadystatechange=(e)=>{
@@ -272,8 +278,8 @@ noUiSlider.create(saltSlider, {
                             depthData.depth[i] = depthDataArray[i].depth;
 
                             
-                        }
-          }}};
+                        }*/
+          };//{{;
           function buttonClick() {
               var basinMenu = document.getElementById("basin-menu");
               var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
@@ -300,11 +306,16 @@ noUiSlider.create(saltSlider, {
                         dataUnfiltered = JSON.parse(Http.responseText);
                         for(i in data.depth) {
                             data.depth[i] = -(data.depth[i]);
-                            data.lon[i] = data.lon[i] - 180;
+                                
+                            data.lon[i] = data.lon[i] + 180
+                            if(data.lon[i]>360){
+                                data.lon[i] -= 360
+                            }
+                            
 }
                             for(i in dataUnfiltered.depth) {
                             dataUnfiltered.depth[i] = -(dataUnfiltered.depth[i]);
-                            dataUnfiltered.lon[i] = dataUnfiltered.lon[i] - 180;
+                            dataUnfiltered.lon[i] = dataUnfiltered.lon[i];
 }
                         
                         console.log(data);
@@ -330,7 +341,7 @@ noUiSlider.create(saltSlider, {
                         speciesOne = JSON.parse(Http.responseText);
                         for(i in speciesOne.depth) {
                             speciesOne.depth[i] = -(speciesOne.depth[i]);
-                            speciesOne.lon[i] = speciesOne.lon[i] - 180;
+                            speciesOne.lon[i] = speciesOne.lon[i];
 }                     
                         console.log(speciesOne);
                         }
@@ -356,7 +367,7 @@ noUiSlider.create(saltSlider, {
                         speciesTwo = JSON.parse(Http.responseText);
                         for(i in speciesTwo.depth) {
                             speciesTwo.depth[i] = -(speciesTwo.depth[i]);
-                            speciesTwo.lon[i] = speciesTwo.lon[i] - 180;
+                            speciesTwo.lon[i] = speciesTwo.lon[i];
 }
                         console.log(speciesTwo);
                         callback.call()
@@ -379,7 +390,7 @@ noUiSlider.create(saltSlider, {
                 }
             }
         makePlotly(overlap.lat, overlap.lon, overlap.depth, overlap.year, depthData.long, depthData.lat, depthData.depth);
-        }
+        } 
     
 
           function makePlotly( lat, long, depth, year, longDepth, latDepth, oceanDepth){
@@ -393,13 +404,20 @@ noUiSlider.create(saltSlider, {
               console.log(opacityValue, lat);
               
               if(basinValue=="0"){
-                  var bound1 = -179, bound2 = 179, bound3 = -89, bound4 = 89;
+                  var bound1 = 0, bound2 = 359.5, bound3 = -89, bound4 = 89;
+                  xSize = 4
               }
               if(basinId == "northPacific"){
-                  var bound1 = -90, bound2 = 114, bound3 = -10, bound4 = 67;
+                  var bound1 = 90, bound2 = 294, bound3 = -10, bound4 = 67;
+                  xSize = 2
               }
               if(basinId == "southPacific"){
-                  var bound1 = -90, bound2 = 114, bound3 = -90, bound4 = 10;
+                  var bound1 = 90, bound2 = 294, bound3 = -90, bound4 = 10;
+                  xSize = 2
+              }
+              if(basinId == 'Atlantic'){
+                  var bound1 = 80, bound2 = 200, bound3 = -80, bound4 = 80;
+                  xSize = 2
               }
               var plotDiv = document.getElementById("plot");
 
@@ -408,7 +426,7 @@ noUiSlider.create(saltSlider, {
               scene:{
                  aspectmode: "manual",
                aspectratio: {
-                 x: 2, y: 2, z: 1,
+                 x: xSize, y: 2, z: 1,
                 },
                xaxis: {
                 nticks: 9,
@@ -422,7 +440,7 @@ noUiSlider.create(saltSlider, {
               },
                zaxis: {
                nticks: 3,
-               range: [-6000, 0],
+               range: [-6000, 1],
                title: 'Depth',
               },
                     camera:{
@@ -441,7 +459,7 @@ noUiSlider.create(saltSlider, {
                 group: depthOpac,
                 marker: {
                     opacity:1,
-                    size:5,
+                    size:3,
                     cmin: -1000,
                     cmax: 0,
                     colorscale: [
@@ -499,6 +517,7 @@ noUiSlider.create(saltSlider, {
         }
         views.view.push(camLayoutUpdate)
         views.name.push(name)
+        dataList(views, viewsList)
         Cookies.set('views', views)
         
     }}
@@ -553,6 +572,12 @@ function dataList(listItems, list){
 function saveDataset(dataset){
     var name = prompt("Please enter a name for this data");
     savedData.name.push(name);
+    let tempValues = tempSlider.noUiSlider.get(), oxyValues = oxySlider.noUiSlider.get(), saltValues = saltSlider.noUiSlider.get(), selectYear = yearSlider.noUiSlider.get();
+              allSliderValues = {
+                    'temp':tempValues,
+                    'salt':saltValues,
+                    'oxy' :oxyValues
+              }
     savedData.params.push(allSliderValues)
     Cookies.set('savedData',savedData)
     var opt = savedData.name[savedData.name.length-1];
