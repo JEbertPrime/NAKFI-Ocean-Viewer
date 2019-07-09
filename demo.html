@@ -4,9 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="nouislider.js"></script>
+    <script src="dataOverlap.js"></script>
     <script src="wNumb.js"></script>
-    <script type="text/javascript" src="depths.json"></script>
-
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <link rel="stylesheet" type="text/css" href="nouislider.css">
 	<link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
@@ -38,10 +37,10 @@
             <div class="slider" id="yearSlider"></div>
 			<div >
 				<h6 style="margin-top: 30px">Choose Basin</h6>
-				<select id="basin-menu" class="menu">
-					<option value="0" id="world">World</option>
-					<option value="1" id="northPacific">North Pacific</option>
-                    <option value="1" id="southPacific">South Pacific</option>
+				<select id="basin-menu" onclick='setLayoutBool()' class="menu">
+					<option value="0" id="world" onclick='setLayoutBool()'>World</option>
+					<option value="1" id="northPacific" onclick='setLayoutBool()'>North Pacific</option>
+                    <option value="1" id="southPacific" onclick='setLayoutBool()'>South Pacific</option>
                     <option value="2" id="Atlantic">Atlantic</option>
                     <option value="3" id="Indian">Indian</option>
                     <option value="4" id="Arctic">Arctic</option>
@@ -51,9 +50,8 @@
                     <option value="8" id="redSea">Red Sea</option>
 				</select>
 			</div>
-			<button class="button" onclick="buttonClick()">Get the data</button>
-            <button class="button" onclick="buttonPlot()">Show the data</button>
-                        <button class="button" onclick="saveDataset(data)">Save Data</button>
+			<button class="button" onclick="buttonClick()">Show Species</button>
+                        <button class="button" onclick="saveDataset(data)">Save Species</button>
 
             <p id="ready">Data status:</p>
             <p id="size">Data Size:</p>
@@ -87,9 +85,13 @@
                 <select id="speciesList2"></select>
                 <input id = 'speciesTwoYear' type="number" name="year" min="1861" max="2100" defaultValue = "1861">
 
-                <button class="button" onclick="overlapPlot()">Calculate Overlap</button>
+                <button class="button" onclick="overlapPlot(0)">Show Overlap</button>
 
-                
+                <button class="button" onclick="overlapPlot(2)">Show  Disappearing Points</button>
+                <button class="button" onclick="overlapPlot(3)">Show Emerging Points</button>
+                <button class="button" onclick="overlapPlot(1)">Show Difference</button>
+
+
                 </div>
 </div>
           </div>
@@ -97,15 +99,15 @@
     </div>
 <p id='demo'></p>
 <script>
-var data, savedData = {name:[], data:[], params:[]}, views = {name:[],view:[]}, dataUnfiltered, data1 = {}, depthData = {long:[], lat:[], depth:[]}, depthDataArray, speciesOneYear = 1861, speciesTwoYear = 1861;  
+var data, savedData = {name:[], data:[], params:[]}, views = {name:[],view:[]}, dataUnfiltered, data1 = {}, depthData = {long:[], lat:[], depth:[]}, depthDataArray, speciesOneYear = 1861, speciesTwoYear = 1861, relayoutBool = false;  
 var tempSlider = document.getElementById('tempSlider'), oxySlider = document.getElementById('oxySlider'), saltSlider = document.getElementById('saltSlider'), yearSlider = document.getElementById('yearSlider'), opacitySlider = document.getElementById('opacitySlider'), depthSlider = document.getElementById('depthSlider'), allSliderValues;
-var filterData = [], isOpen =false, firstPlot=false;
-    var speciesOne, speciesTwo, overlap = {depth:[], lon:[], lat:[], year:[]};
+var filterData = [], isOpen =false, isUpdate = false, excludedBool = false;
+    var speciesOne, speciesTwo, overlap = {depth:[], lon:[], lat:[], year:[]}, speciesOneUrlPrevious, speciesTwoUrlPrevious, previousUrl, basinIdPrevious = 0;
 var checkboxSalt = document.getElementById('checkboxSalt'),
     checkboxTemp = document.getElementById('checkboxTemp'),
     checkboxOxy = document.getElementById('checkboxOxy');
 var saveList = document.getElementById("saveList"), speciesList1 = document.getElementById("speciesList1"), speciesList2 = document.getElementById("speciesList2"), viewsList = document.getElementById('viewsList'), camLayout;
-/*d3.csv("https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/depths.csv", function(rows) {
+/*d3.csv("http://temp.justinebert.com/depths.csv", function(rows) {
     depthData.push(rows);
     });*/
     getBath();
@@ -117,6 +119,11 @@ dataList(savedData,saveList)
 dataList(savedData,speciesList1)
 dataList(savedData,speciesList2)
 dataList(views, viewsList)
+function setLayoutBool(){
+    
+    relayoutBool = true;
+    console.log(relayoutBool)
+}
 function w3_open(id) {
     var i = 0;
     if(!isOpen && i==0){
@@ -215,7 +222,7 @@ noUiSlider.create(saltSlider, {
 	}
 });
        noUiSlider.create(opacitySlider, {
-    start: [50],
+    start: [100],
     tooltips: wNumb({decimals: 0}),
     connect: true,
     step: 1,
@@ -235,13 +242,15 @@ noUiSlider.create(saltSlider, {
         tooltips: [wNumb({decimals: 0}),wNumb({decimals: 0})],
 
     range: {
-        'min': 0,
+        'min': [0,10],
+        '30':[100,25],
+        '60%':[1000,50],
         'max': 5000,
     },
     step: 10,
 	pips: {
 		mode:'positions',
-		values: [0, 25, 50, 75, 100],
+		values: [0, 30, 60, 100],
 		density: 4
 	}
 });
@@ -252,7 +261,10 @@ noUiSlider.create(saltSlider, {
           function getBath() {
                d3.csv("https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/bathymetry_60min.csv", function(d){
                       depthData.lat.push(d.lat)
-                      depthData.long.push(parseFloat(d.long) + 180)
+                      if(d.long>=0){depthData.long.push(parseFloat(d.long))} //+ 180)
+                      if(d.long<0){
+                          depthData.long.push(parseFloat(d.long)+360)
+                      }
                       depthData.depth.push(d.ocean_depth)
                   
               })
@@ -280,125 +292,14 @@ noUiSlider.create(saltSlider, {
                             
                         }*/
           };//{{;
-          function buttonClick() {
-              var basinMenu = document.getElementById("basin-menu");
-              var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
-              console.log(basinValue);
-              document.getElementById('ready').innerHTML = 'Data status: '; 
-              var tempValues = tempSlider.noUiSlider.get(), oxyValues = oxySlider.noUiSlider.get(), saltValues = saltSlider.noUiSlider.get(), selectYear = yearSlider.noUiSlider.get();
-              allSliderValues = {
-                    'temp':tempValues,
-                    'salt':saltValues,
-                    'oxy' :oxyValues
-              }
-                const Http = new XMLHttpRequest();
-                    const url='https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + tempValues[0] + '&max_temp=' + tempValues[1] + '&min_salt=' + saltValues[0] + '&max_salt=' + saltValues[1] + '&min_o2=' + oxyValues[0] + '&max_o2=' + oxyValues[1] + '&min_year=' + selectYear + '&max_year=' + selectYear + '&basin='+ basinValue;
-                    Http.open("GET", url);
-                    Http.send();
-                    Http.onreadystatechange=(e)=>{
-                        if(Http.readyState == 2 ){
-                          document.getElementById('ready').innerHTML = 'Data status: downloading';  
-                        }
-                        if (Http.readyState == 4 && Http.status == 200){
-                        document.getElementById('ready').innerHTML = 'Data status: ready';
-                        console.log(url);
-                        data = JSON.parse(Http.responseText);
-                        dataUnfiltered = JSON.parse(Http.responseText);
-                        for(i in data.depth) {
-                            data.depth[i] = -(data.depth[i]);
-                                
-                            data.lon[i] = data.lon[i] + 180
-                            if(data.lon[i]>360){
-                                data.lon[i] -= 360
-                            }
-                            
-}
-                            for(i in dataUnfiltered.depth) {
-                            dataUnfiltered.depth[i] = -(dataUnfiltered.depth[i]);
-                            dataUnfiltered.lon[i] = dataUnfiltered.lon[i];
-}
-                        
-                        console.log(data);
-                        document.getElementById("size").innerHTML = 'Data Size: ' + data.num + " points";
-                        }
-                    }
-          };
-    function setSpeciesOne(){
-        var saveSelect = speciesList1.options[speciesList1.selectedIndex].value;
-        speciesOneYear = document.getElementById("speciesOneYear").value
-        speciesOneParams = JSON.parse(JSON.stringify(savedData.params[saveSelect]));
-        speciesOneUrl = 'https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + speciesOneParams.temp[0] + '&max_temp=' + speciesOneParams.temp[1] + '&min_salt=' + speciesOneParams.salt[0] + '&max_salt=' + speciesOneParams.salt[1] + '&min_o2=' + speciesOneParams.oxy[0] + '&max_o2=' + speciesOneParams.oxy[1] + '&min_year=' + speciesOneYear + '&max_year=' + speciesOneYear;
-        const Http = new XMLHttpRequest();
-        Http.open("GET", speciesOneUrl);
-                    Http.send();
-        console.log("one")
-                    Http.onreadystatechange=(e)=>{
-                        if(Http.readyState == 2 ){
-                          document.getElementById('ready').innerHTML = 'Data status: downloading';  
-                        }
-                        if (Http.readyState == 4 && Http.status == 200){
-                        document.getElementById('ready').innerHTML = 'Data status: ready';
-                        speciesOne = JSON.parse(Http.responseText);
-                        for(i in speciesOne.depth) {
-                            speciesOne.depth[i] = -(speciesOne.depth[i]);
-                            speciesOne.lon[i] = speciesOne.lon[i];
-}                     
-                        console.log(speciesOne);
-                        }
-                    }
-        console.log(speciesOne);
-    }
-    function setSpeciesTwo(callback){
-        var saveSelect = speciesList2.options[speciesList2.selectedIndex].value;
-
-        speciesTwoYear = document.getElementById("speciesTwoYear").value
-        speciesTwoParams = JSON.parse(JSON.stringify(savedData.params[saveSelect]));
-        speciesTwoUrl = 'https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + speciesTwoParams.temp[0] + '&max_temp=' + speciesTwoParams.temp[1] + '&min_salt=' + speciesTwoParams.salt[0] + '&max_salt=' + speciesTwoParams.salt[1] + '&min_o2=' + speciesTwoParams.oxy[0] + '&max_o2=' + speciesTwoParams.oxy[1] + '&min_year=' + speciesTwoYear + '&max_year=' + speciesTwoYear;
-        const Http = new XMLHttpRequest();
-        Http.open("GET", speciesTwoUrl);
-                    Http.send();
-        console.log("two")
-                    Http.onreadystatechange=(e)=>{
-                        if(Http.readyState == 2 ){
-                          document.getElementById('ready').innerHTML = 'Data status: downloading';  
-                        }
-                        if (Http.readyState == 4 && Http.status == 200){
-                        document.getElementById('ready').innerHTML = 'Data status: ready';
-                        speciesTwo = JSON.parse(Http.responseText);
-                        for(i in speciesTwo.depth) {
-                            speciesTwo.depth[i] = -(speciesTwo.depth[i]);
-                            speciesTwo.lon[i] = speciesTwo.lon[i];
-}
-                        console.log(speciesTwo);
-                        callback.call()
-
-                        }
-                    }
-        console.log(speciesTwo);
-    }
-    function compareSpecies(){
-            overlap = {depth:[], lon:[], lat:[], year:[]}
-            for(i = 0; i<speciesOne.depth.length; i++){
-            for(j = 0; j<speciesTwo.depth.length; j++){
-                if( (speciesOne.depth[i]==speciesTwo.depth[j]) && (speciesOne.lon[i]==speciesTwo.lon[j]) && (speciesOne.lat[i]==speciesTwo.lat[j])){
-                    overlap.depth[i] = speciesOne.depth[i];
-                    overlap.lon[i] = speciesOne.lon[i];
-                    overlap.lat[i] = speciesOne.lat[i];
-                    overlap.year[i] = speciesOne.year[i];
-                    }
-                    
-                }
-            }
-        makePlotly(overlap.lat, overlap.lon, overlap.depth, overlap.year, depthData.long, depthData.lat, depthData.depth);
-        } 
-    
-
-          function makePlotly( lat, long, depth, year, longDepth, latDepth, oceanDepth){
+        function relayoutPlot(){
+             var longDepth = depthData.long, latDepth = depthData.lat, oceanDepth = depthData.depth
               var basinMenu = document.getElementById("basin-menu");
               var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
               var basinId = basinMenu.options[basinMenu.selectedIndex].id;
               var opacDepth = true, depthOpac = depth.map(function(x){ return -x/1000;});
-              console.log(depthOpac);
+              console.log(depthOpac);                
+              
 
               var opacityValue = (opacitySlider.noUiSlider.get())/100;
               console.log(opacityValue, lat);
@@ -418,6 +319,285 @@ noUiSlider.create(saltSlider, {
               if(basinId == 'Atlantic'){
                   var bound1 = 80, bound2 = 200, bound3 = -80, bound4 = 80;
                   xSize = 2
+              }
+              var plotDiv = document.getElementById("plot");
+
+                var layout = {
+                    autosize:true,
+              scene:{
+                 aspectmode: "manual",
+               aspectratio: {
+                 x: xSize, y: 2, z: 1,
+                },
+               xaxis: {
+                nticks: 9,
+                range: [bound1, bound2],
+                title:'Longitude',
+              },
+               yaxis: {
+                nticks: 7,
+                range: [bound3, bound4],
+                title: 'Latitude',
+              },
+               zaxis: {
+               nticks: 3,
+               range: [-6000, 1],
+               title: 'Depth',
+              },
+                    camera:{
+                        eye:{
+                            x:0,
+                            y:-3,
+                            z:4
+                        }
+                    }
+            }};
+            
+        }  
+        function buttonClick() {
+              var basinMenu = document.getElementById("basin-menu");
+              var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
+              console.log(basinValue);
+              document.getElementById('ready').innerHTML = 'Data status: '; 
+              var tempValues = tempSlider.noUiSlider.get(), oxyValues = oxySlider.noUiSlider.get(), saltValues = saltSlider.noUiSlider.get(), selectYear = yearSlider.noUiSlider.get();
+              allSliderValues = {
+                    'temp':tempValues,
+                    'salt':saltValues,
+                    'oxy' :oxyValues
+              }
+                const Http = new XMLHttpRequest();
+                    const url='https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + tempValues[0] + '&max_temp=' + tempValues[1] + '&min_salt=' + saltValues[0] + '&max_salt=' + saltValues[1] + '&min_o2=' + oxyValues[0] + '&max_o2=' + oxyValues[1] + '&min_year=' + selectYear + '&max_year=' + selectYear;
+            if(url != previousUrl){
+                    Http.open("GET", url);
+                    Http.send();
+                    Http.onreadystatechange=(e)=>{
+                        if(Http.readyState == 2 ){
+                          document.getElementById('ready').innerHTML = 'Data status: downloading';  
+                        }
+                        if (Http.readyState == 4 && Http.status == 200){
+                        document.getElementById('ready').innerHTML = 'Data status: ready';
+                        console.log(url);
+                        data = JSON.parse(Http.responseText);
+                        dataUnfiltered = JSON.parse(Http.responseText);
+                        for(i in data.depth) {
+                            data.depth[i] = -(data.depth[i]);
+                                
+//                            data.lon[i] = data.lon[i] + 180
+//                            if(data.lon[i]>360){
+//                                data.lon[i] -= 360
+//                            }
+                            
+}
+                            for(i in dataUnfiltered.depth) {
+                            dataUnfiltered.depth[i] = -(dataUnfiltered.depth[i]);
+                            dataUnfiltered.lon[i] = dataUnfiltered.lon[i];
+                            
+}
+                        console.log(data);
+                            previousUrl = url
+                            buttonPlot()
+                        document.getElementById("size").innerHTML = 'Data Size: ' + data.num + " points";
+                        }
+                    }}
+            else{
+                buttonPlot()
+            }
+          };
+    function setSpeciesOne(){
+        var saveSelect = speciesList1.options[speciesList1.selectedIndex].value;
+        speciesOneYear = document.getElementById("speciesOneYear").value
+        speciesOneParams = JSON.parse(JSON.stringify(savedData.params[saveSelect]));
+        speciesOneUrl = 'https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + speciesOneParams.temp[0] + '&max_temp=' + speciesOneParams.temp[1] + '&min_salt=' + speciesOneParams.salt[0] + '&max_salt=' + speciesOneParams.salt[1] + '&min_o2=' + speciesOneParams.oxy[0] + '&max_o2=' + speciesOneParams.oxy[1] + '&min_year=' + speciesOneYear + '&max_year=' + speciesOneYear;
+        if(speciesOneUrl != speciesOneUrlPrevious){
+        const Http = new XMLHttpRequest();
+        Http.open("GET", speciesOneUrl);
+                    Http.send();
+        console.log("one")
+                    Http.onreadystatechange=(e)=>{
+                        if(Http.readyState == 2 ){
+                          document.getElementById('ready').innerHTML = 'Data status: downloading';  
+                        }
+                        if (Http.readyState == 4 && Http.status == 200){
+                        document.getElementById('ready').innerHTML = 'Data status: ready';
+                        speciesOne = JSON.parse(Http.responseText);
+                        for(i in speciesOne.depth) {
+                            speciesOne.depth[i] = -(speciesOne.depth[i]);
+//                            speciesOne.lon[i] = speciesOne.lon[i] + 180;
+//                            if(speciesOne.lon[i]>360){
+//                                speciesOne.lon[i]-=360
+//                            }
+}                     
+                            speciesOneUrlPrevious = speciesOneUrl
+                            setSpeciesTwo()
+                        }
+                    }
+        }
+        else{
+            console.log("it worked")
+            setSpeciesTwo()
+        }
+    }
+    function setSpeciesTwo(){
+        var saveSelect = speciesList2.options[speciesList2.selectedIndex].value;
+
+        speciesTwoYear = document.getElementById("speciesTwoYear").value
+        speciesTwoParams = JSON.parse(JSON.stringify(savedData.params[saveSelect]));
+        speciesTwoUrl = 'https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + speciesTwoParams.temp[0] + '&max_temp=' + speciesTwoParams.temp[1] + '&min_salt=' + speciesTwoParams.salt[0] + '&max_salt=' + speciesTwoParams.salt[1] + '&min_o2=' + speciesTwoParams.oxy[0] + '&max_o2=' + speciesTwoParams.oxy[1] + '&min_year=' + speciesTwoYear + '&max_year=' + speciesTwoYear;
+        if(speciesTwoUrl != speciesTwoUrlPrevious){
+        const Http = new XMLHttpRequest();
+        Http.open("GET", speciesTwoUrl);
+                    Http.send();
+        console.log("two")
+                    Http.onreadystatechange=(e)=>{
+                        if(Http.readyState == 2 ){
+                          document.getElementById('ready').innerHTML = 'Data status: downloading';  
+                        }
+                        if (Http.readyState == 4 && Http.status == 200){
+                        document.getElementById('ready').innerHTML = 'Data status: ready';
+                        speciesTwo = JSON.parse(Http.responseText);
+                        for(i in speciesTwo.depth) {
+                            speciesTwo.depth[i] = -(speciesTwo.depth[i]);
+//                            speciesTwo.lon[i] = speciesTwo.lon[i] + 180;
+//                            if(speciesTwo.lon[i]>360){
+//                                speciesTwo.lon[i]-=360
+//                            }
+}
+                        speciesTwoUrlPrevious = speciesTwoUrl
+
+                        compareSpecies(speciesOne, speciesTwo)
+
+                        }
+                    }
+        }
+        else{
+            compareSpecies(speciesOne, speciesTwo)
+
+        }
+    }
+    function compareSpecies(json1, json2){
+        if(json1.depth.length >= json2.depth.length){
+            array1 = toArray(json1)
+            array2 = toArray(json2)
+        }
+        else if(json2.depth.length > json1.depth.length){
+            array1 = toArray(json2)
+            array2 = toArray(json1)
+        }
+        array1String = arrayToString(array1)
+        array2String = arrayToString(array2)
+        lookup1 = {}
+        lookup2 = {}
+        //overlap = compareDatasets(array1, array2)
+        overlap = []
+        excluded1 = []
+        excluded2 = []
+        for(j in array2String){
+            lookup1[array2String[j]] = array2String[j]
+        }
+        for(i in array1String){
+            if(typeof lookup1[array1String[i]] != 'undefined') {
+                overlap.push(array1String[i])
+            }
+            else{
+                excluded1.push(array1String[i])
+            }
+        }
+            for(j in array1String){
+                lookup2[array1String[j]] = array1String[j]
+            }
+            for(i in array2String){
+
+                if(typeof lookup2[array2String[i]] == 'undefined'){
+                    excluded2.push(array2String[i])
+                }
+            }
+        
+        overlap = stringsToJson(overlap)
+        excluded1 = stringsToJson(excluded1)
+        excluded2 = stringsToJson(excluded2)
+        var excluded = {
+            lon: excluded1.lon.concat(excluded2.lon),
+            lat: excluded1.lat.concat(excluded2.lat),
+            depth: excluded1.depth.concat(excluded2.depth)
+        }
+        console.log(overlap, excluded1)
+        if(plotType == 0){
+            makePlotly(overlap.lat, overlap.lon, overlap.depth)
+        }
+        if(plotType == 1){
+            makePlotly(excluded.lat, excluded.lon, excluded.depth)
+        }
+        if(plotType == 2){
+            makePlotly(excluded1.lat, excluded1.lon, excluded1.depth)
+        }
+        if(plotType == 3){
+            makePlotly(excluded2.lat, excluded2.lon, excluded2.depth)
+        }
+    }
+    function arrayToString(intArray){
+        let stringArray = []
+        for(i in intArray){
+            stringArray[i] = intArray[i].toString()
+        }
+        return stringArray
+    }
+    function stringsToJson(stringArray){
+        let json1 = {
+            lon:[],
+            lat:[],
+            depth:[]
+        }
+        for(i in stringArray){
+            let element = JSON.parse("[" + stringArray[i] + "]")
+            json1.lon.push(element[0])
+            json1.lat.push(element[1])
+            json1.depth.push(element[2])
+        }
+        return json1
+    }
+    /*function compareSpecies(){
+            overlap = {depth:[], lon:[], lat:[], year:[]}
+            for(i = 0; i<speciesOne.depth.length; i++){
+            for(j = 0; j<speciesTwo.depth.length; j++){
+                if( (speciesOne.depth[i]==speciesTwo.depth[j]) && (speciesOne.lon[i]==speciesTwo.lon[j]) && (speciesOne.lat[i]==speciesTwo.lat[j])){
+                    overlap.depth[i] = speciesOne.depth[i];
+                    overlap.lon[i] = speciesOne.lon[i];
+                    overlap.lat[i] = speciesOne.lat[i];
+                    overlap.year[i] = speciesOne.year[i];
+                    }
+                    
+                }
+            }
+        makePlotly(overlap.lat, overlap.lon, overlap.depth, overlap.year, depthData.long, depthData.lat, depthData.depth);
+        }*/ 
+    
+
+          function makePlotly(lat, long, depth, year){
+              var longDepth = depthData.long, latDepth = depthData.lat, oceanDepth = depthData.depth
+              var basinMenu = document.getElementById("basin-menu");
+              var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
+              console.log(relayoutBool)
+              var basinId = basinMenu.options[basinMenu.selectedIndex].id
+
+              var opacDepth = true, depthOpac = depth.map(function(x){ return -x/1000;});
+              console.log(depthOpac);                
+              document.getElementById('ready').innerHTML = "Data Status: Rendering"
+
+              var opacityValue = (opacitySlider.noUiSlider.get())/100
+              console.log(opacityValue, lat)
+              switch(basinId){
+                  case 'world':
+                      var bound1 = 0, bound2 = 359.5, bound3 = -89, bound4 = 89;
+                      xSize = 4
+                      break;
+                  case 'northPacific':
+                      var bound1 = 90, bound2 = 294, bound3 = -10, bound4 = 67;
+                      xSize = 3.5
+                      break;
+                  case 'southPacific':
+                      var bound1 = 90, bound2 = 294, bound3 = -90, bound4 = 10;
+                      xSize = 3.5
+                      break;
               }
               var plotDiv = document.getElementById("plot");
 
@@ -497,6 +677,66 @@ noUiSlider.create(saltSlider, {
                     ],
                 }
               ];
+              
+              if(isUpdate && relayoutBool){
+                  console.log("update layout", dataset, long)
+                  Plotly.update('myDiv', {
+                x: [long], y: [lat], z:[depth],
+                opacity:[1],
+                group: [depthOpac],
+                marker: {
+                    opacity:1,
+                    size:3,
+                    cmin: -1000,
+                    cmax: 0,
+                    colorscale: [
+    ['0.0', 'rgb(165,0,38)'],
+    ['0.111111111111', 'rgb(215,48,39)'],
+    ['0.222222222222', 'rgb(244,109,67)'],
+    ['0.333333333333', 'rgb(253,174,97)'],
+    ['0.444444444444', 'rgb(254,224,144)'],
+    ['0.555555555556', 'rgb(224,243,248)'],
+    ['0.666666666667', 'rgb(171,217,233)'],
+    ['0.777777777778', 'rgb(116,173,209)'],
+    ['0.888888888889', 'rgb(116,173,209)'],
+    ['1.0', 'rgb(69,117,180)']
+  ],
+                    color: depth
+               },
+                hovertext: year
+                
+               },{'scene.xaxis.range': [bound1, bound2], 'scene.yaxis.range': [bound3,bound4], 'scene.aspectratio.x': xSize}, 0)
+              }
+              if(isUpdate && !relayoutBool){
+                  console.log("update data", dataset, long)
+                  Plotly.restyle('myDiv', {
+                x: [long], y: [lat], z:[depth],
+                opacity:[1],
+                group: [depthOpac],
+                marker: {
+                    opacity:1,
+                    size:3,
+                    cmin: -1000,
+                    cmax: 0,
+                    colorscale: [
+    ['0.0', 'rgb(165,0,38)'],
+    ['0.111111111111', 'rgb(215,48,39)'],
+    ['0.222222222222', 'rgb(244,109,67)'],
+    ['0.333333333333', 'rgb(253,174,97)'],
+    ['0.444444444444', 'rgb(254,224,144)'],
+    ['0.555555555556', 'rgb(224,243,248)'],
+    ['0.666666666667', 'rgb(171,217,233)'],
+    ['0.777777777778', 'rgb(116,173,209)'],
+    ['0.888888888889', 'rgb(116,173,209)'],
+    ['1.0', 'rgb(69,117,180)']
+  ],
+                    color: depth
+               },
+                hovertext: year
+                
+               }, 0)
+              }
+              if(!isUpdate){
   Plotly.newPlot('myDiv', dataset, layout, 
                  {modeBarButtonsToAdd: [{
     name: 'save camera layout',
@@ -522,7 +762,15 @@ noUiSlider.create(saltSlider, {
         
     }}
                                        ]});
-};
+                  
+
+              }
+              isUpdate= true
+                                basinIdprevious = basinId
+              relayoutBool = false
+              document.getElementById('ready').innerHTML = "Data Status: Rendered"
+          }
+;
 function timeForward(){
     
 }
@@ -582,14 +830,14 @@ function saveDataset(dataset){
     Cookies.set('savedData',savedData)
     var opt = savedData.name[savedData.name.length-1];
     var el = document.createElement("option");
-    el.textContent = opt;
-    el.value = savedData.name.length - 1;
+        el.textContent = opt;
+        el.value = savedData.name.length - 1;
     var el1 = document.createElement("option");
-    el1.textContent = opt;
-    el1.value = savedData.name.length - 1;
+        el1.textContent = opt;
+        el1.value = savedData.name.length - 1;
     var el2 = document.createElement("option");
-    el2.textContent = opt;
-    el2.value = savedData.name.length - 1;
+        el2.textContent = opt;
+        el2.value = savedData.name.length - 1;
     saveList.add(el);
     speciesList1.add(el1);
     speciesList2.add(el2);
@@ -611,13 +859,10 @@ function buttonPlot(){
     filterByDepth();
     let data = data1;
     makePlotly(data.lat, data.lon, data.depth, data.year, depthData.long, depthData.lat, depthData.depth);
-        console.log(data)
           }
-function overlapPlot(){
+function overlapPlot(selection){
+        plotType = selection
         setSpeciesOne();
-        setSpeciesTwo(compareSpecies);
-    //
-        console.log(overlap)
           }
 var rangeMap = new selectMap("rangeMap");
 
