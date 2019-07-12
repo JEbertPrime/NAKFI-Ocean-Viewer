@@ -521,6 +521,7 @@ noUiSlider.create(saltSlider, {
             depth: excluded1.depth.concat(excluded2.depth)
         }
         console.log(overlap, excluded1)
+
         if(plotType == 0){
             makePlotly(overlap.lat, overlap.lon, overlap.depth)
         }
@@ -581,7 +582,6 @@ noUiSlider.create(saltSlider, {
 
               var opacDepth = true, depthOpac = depth.map(function(x){ return -x/1000;});
               console.log(depthOpac);                
-              document.getElementById('ready').innerHTML = "Data Status: Rendering"
 
               var opacityValue = (opacitySlider.noUiSlider.get())/100
               console.log(opacityValue, lat)
@@ -842,6 +842,25 @@ function saveDataset(dataset){
     speciesList1.add(el1);
     speciesList2.add(el2);
 }
+function predatorPreyOverlap(){
+    var saveSelect1 = speciesList1.options[speciesList1.selectedIndex].value;
+    var saveSelect2 = speciesList2.options[speciesList2.selectedIndex].value;
+    let species1 = JSON.parse(JSON.stringify(savedData.params[saveSelect1]));
+    let species2 = JSON.parse(JSON.stringify(savedData.params[saveSelect2]));
+    let speciesOverlap = {
+        temp:[],
+        salt:[],
+        oxy:[]
+    }
+    for(i in species1){
+        if(species1[i][0]>=species2[i][0] && species1[i][0]<species2[i][1]){
+            speciesOverlap[i][0] = species1[i][0]
+        }
+        else{
+            
+        }
+    }
+}
 function loadDataset(){
     var saveSelect = saveList.options[saveList.selectedIndex].value;
     let params = JSON.parse(JSON.stringify(savedData.params[saveSelect]))
@@ -858,6 +877,8 @@ function resetView(){
 function buttonPlot(){
     filterByDepth();
     let data = data1;
+                  document.getElementById('ready').innerHTML = "Data Status: Rendering"
+
     makePlotly(data.lat, data.lon, data.depth, data.year, depthData.long, depthData.lat, depthData.depth);
           }
 function overlapPlot(selection){
