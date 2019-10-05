@@ -2,18 +2,50 @@ html,
 body {
     height: 100%;
     margin: 0px;
+    overflow: hiden;
 }
-
+body.waiting{
+    cursor: progress;
+}
+#shadowbox{
+    height: 105%;
+    width: 17vw;
+    min-width: 300px;
+    box-shadow: 3px 0px 5px grey;
+    z-index: 0;
+    position:fixed;
+    margin-top: -20px;
+    overflow: hidden;
+    transition: .5s;
+}
+.noUi-pips {
+    pointer-events: none !important;
+}
 .sidebar {
+    float:left;
     height: 100%;
+    position: absolute;
     width: 90%;
-    left: 50px;
     margin-top: 40px;
+    left:0;
     margin: auto;
-    padding-right: 20px;
     padding-left: 10px;
-}
+    margin-right:-10px;
+    z-index: 1;
 
+}
+.noUi-tooltip .noUi-handle:hover {
+    display: block;
+}
+.vertical-buttons-div{
+    float:right;
+    right:0px;
+    position:absolute;
+    width:10%;
+}
+input{
+    width:45px;
+}
 .slider {
     margin-bottom: 50px;
     margin-left: 10px;
@@ -29,31 +61,102 @@ body {
 }
 
 .topbar {
-    height: 3vw;
+    height: 45px;
+    min-height: 40px;
     width: 100%;
     margin-top: -15px;
     padding: 0px;
+    position: relative;
     margin-bottom: 40px;
     background-color: #2F2E2F;
+    z-index: 2;
 }
+.viewer-menu {
+    z-index: 1;
+    background-color: #4B4B4B;
+    border-right: 1px solid grey;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    width: 250px;
+    /* 0 width - change this with JavaScript */
+    position: relative;
+    /* Stay in place */
+    padding: 5px;
+    top: 0;
+    left: 0vw;
+    overflow-x: hidden;
+    /* Disable horizontal scroll */
+    transition: 0.5s;
+    /* 0.5 second transition effect to slide in the sidepanel */
 
+}
+.viewer-menu.show {
+    left: 17vw;
+}
+#viewer-menu{
+    margin-bottom: -5px;
+}
+#data-menu{
+}
+.menu-wrap{
+    position:absolute;
+    padding-top:4vh;
+}
+button.vertical span{
+    position: relative;
+    display: inline-block;
+    transform: rotate(90deg);
+    width:90px;
+    right: 35px;
+}
+button.vertical{
+    width:15px;
+    height:100px;
+    padding:0px;
+    margin-left:8px ;
+    z-index: 2;
+    a{
+        font-size:40%;
+    }
+}
+#viewer-button{
+    margin-top:4.5vh
+}
+#data-button{
+    margin-top:150px
+}
+@media (max-width: 1756px) {
+  .viewer-menu.show {
+    left: 300px;
+  }
+}
 .superbar {
     height: 100%;
     width: 17vw;
     min-width: 300px;
     position: fixed;
-    z-index: 1;
+    z-index: 2;
     top: 0;
     left: 0;
     background-color: #4B4B4B;
     float: left;
     padding: 0px;
-    overflow: scroll;
-    overflow-x: hidden;
+    overflow: hidden;
+    transition: .5s;
+
 }
-select{
+
+.sidebar:hover {
+    .viewer-menu {
+        right: -100px;
+    }
+}
+.modebar{
+}
+select {
     width: 70px;
 }
+
 .sidebar p {
     color: #FFF;
 }
@@ -62,8 +165,13 @@ select{
     float: right;
     width: 83vw;
     height: 100%;
+    padding: 0px;
+    margin:0px;
+    overflow: hidden;
 }
-
+#basin-menu{
+    margin-bottom: 10px;
+}
 #rangeMap {
     margin-top: 20px;
     width: 200px;
@@ -74,7 +182,7 @@ select{
 
 h1 {
     color: white;
-    font-size: 1.2vw;
+    font-size: 24px;
     padding: 10px;
     font-family: 'Muli', sans-serif;
     font-weight: 100;
@@ -90,11 +198,9 @@ h6 {
 
 }
 
-button {
-    margin-top: 30px;
-}
 
-.button {
+
+button {
     background-color: #E1E1D5;
     border-radius: 2px;
     border: none;
@@ -104,9 +210,9 @@ button {
     transition-duration: 0.2s;
 }
 
-.button:hover {}
+button:hover {}
 
-.button:active {
+button:active {
     background-color: #D2D3CF;
     -webkit-transition-duration: 0.1s;
     /* Safari */
