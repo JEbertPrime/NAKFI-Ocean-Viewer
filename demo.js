@@ -57,11 +57,6 @@ var data, savedData = {
         dataList(savedData, speciesList2)
         dataList(views, viewsList)
         //utility functions
-        var testParams = {
-            temp:[1,20],
-            salt:[20,30],
-            oxy:[200,250]
-        }
         function isEquivalent(a, b) {
             // Create arrays of property names
             var aProps = Object.getOwnPropertyNames(a);
@@ -165,6 +160,18 @@ var data, savedData = {
                 isOpen = false;
                 i++;
             }
+        }
+        function switchOcean(long){
+            for(i in long){
+                if(long[i] <= 180){
+                    long[i] = long[i]
+                }
+                else if (long[i] > 180){
+                    long[i] = long[i] - 360
+                }
+            }
+            console.log(long)
+            return long
         }
 
         noUiSlider.create(tempSlider, {
@@ -347,7 +354,8 @@ var data, savedData = {
         function relayoutPlot() {
             var longDepth = depthData.long,
                 latDepth = depthData.lat,
-                oceanDepth = depthData.depth
+                oceanDepth = depthData.depth,
+                switchOceanBool = false
             var basinMenu = document.getElementById("basin-menu");
             var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
             var basinId = basinMenu.options[basinMenu.selectedIndex].id;
@@ -383,11 +391,12 @@ var data, savedData = {
                 xSize = 2
             }
             if (basinId == 'Atlantic') {
-                var bound1 = 80,
-                    bound2 = 200,
+                var bound1 = -100,
+                    bound2 = 20,
                     bound3 = -80,
                     bound4 = 80;
                 xSize = 2
+                switchOceanBool = true
             }
             var plotDiv = document.getElementById("plot");
 
@@ -609,21 +618,7 @@ var data, savedData = {
             }
             return json1
         }
-        /*function compareSpecies(){
-                overlap = {depth:[], lon:[], lat:[], year:[]}
-                for(i = 0; i<speciesOne.depth.length; i++){
-                for(j = 0; j<speciesTwo.depth.length; j++){
-                    if( (speciesOne.depth[i]==speciesTwo.depth[j]) && (speciesOne.lon[i]==speciesTwo.lon[j]) && (speciesOne.lat[i]==speciesTwo.lat[j])){
-                        overlap.depth[i] = speciesOne.depth[i];
-                        overlap.lon[i] = speciesOne.lon[i];
-                        overlap.lat[i] = speciesOne.lat[i];
-                        overlap.year[i] = speciesOne.year[i];
-                        }
-                        
-                    }
-                }
-            makePlotly(overlap.lat, overlap.lon, overlap.depth, overlap.year, depthData.long, depthData.lat, depthData.depth);
-            }*/
+        
 
 
         function makePlotly(lat, long, depth, year) {
@@ -665,6 +660,17 @@ var data, savedData = {
                         bound4 = 10;
                     xSize = 3.5
                     break;
+                case 'atlantic':
+                    var bound1 = -100,
+                        bound2 = 20,
+                        bound3 = -80,
+                        bound4 = 80;
+                    xSize = 1.7
+                    long = switchOcean(long)
+                    longDepth = switchOcean(longDepth)
+                    break;
+                case 'indian':
+                    var bound1 = 
             }
             var plotDiv = document.getElementById("plot");
 
@@ -824,15 +830,6 @@ var data, savedData = {
             relayoutBool = false
             document.body.style.cursor = "auto"
         };
-
-        function timeForward() {
-
-        }
-
-        function updatePlot() {
-
-        }
-
         function toggle(element) {
 
             // If the checkbox is checked, disabled the slider.
