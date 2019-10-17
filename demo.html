@@ -33,10 +33,11 @@
                 <h6>TEMPERATURE</h6>
                 <div class="slider" id="tempSlider"></div>
                 <h6>OXYGEN </h6>
-                <select id="oxygen-menu">
-                <option>mmol O #x1D57 / m</option>
-                <option>mL/L</option>
-                <option>mg O</option>
+                <select id="oxygen-menu" >
+                <option id='oxy1'>mmol O&#x2082;  / m&#xb3;</option>
+                <option id='oxy2'>mL/L</option>
+                <option id='oxy3'>mg O&#x2082; / L</option>
+                <option id='oxy4'>mg-atoms O&#x2082; / L</option>
                 </select>
                 <div class="slider" id="oxySlider"></div>
                 <h6>SALINITY</h6>
@@ -55,14 +56,12 @@
                         <option value="2" id="atlantic">Atlantic</option>
                         <option value="3" id="indian">Indian</option>
                         <option value="4" id="arctic">Arctic</option>
-                        <option value="5" id="mediterranean">Mediterranean Sea</option>
-                        <option value="6" id="caspian">Caspian Sea</option>
-                        <option value="7" id="blackSea">Black Sea</option>
-                        <option value="8" id="redSea">Red Sea</option>
+                        <option value="10" id="antarctic">Antarctic</option>
+
                     </select>
                 </div>
-                <button class="button" onclick="showSpecies()">Show Species</button>
-                <button class="button" onclick="saveDataset(data)">Save Species</button>
+                <button class="button" onclick="showSpecies()">Display Data</button>
+                <button class="button" onclick="saveDataset(data)">Save Parameters</button>
 
                 <p id="ready">Data status:</p>
                 <p id="size">Data Size:</p>
@@ -86,7 +85,7 @@
                     <h6>Reset View to Saved Layout</h6>
                     <button onclick="saveView()">Save Camera View</button>
                     <select id='viewsList'></select>
-                    <button class="button" onclick='resetView()'>Set View</button>
+                    <button class="button" onclick='resetView()'>Reset to Saved View</button>
                     <h6>Bathymetry Opacity</h6>
                     <div class="slider" id="opacitySlider"></div>
                     

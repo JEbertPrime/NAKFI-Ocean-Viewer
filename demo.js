@@ -41,7 +41,7 @@ var data, savedData = {
             speciesList1 = document.getElementById("speciesList1"),
             speciesList2 = document.getElementById("speciesList2"),
             viewsList = document.getElementById('viewsList'),
-            camLayout;
+            camLayout, oxyUnitConversion = 1, maxOxyValue = 400, oxyStep = 5, oxyDecimals = 0;
         /*d3.csv("http://temp.justinebert.com/depths.csv", function(rows) {
             depthData.push(rows);
             });*/
@@ -85,6 +85,7 @@ var data, savedData = {
         async function downloadData(parameters, year){
             
             var url = 'https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + parameters.temp[0] + '&max_temp=' + parameters.temp[1] + '&min_salt=' + parameters.salt[0] + '&max_salt=' + parameters.salt[1] + '&min_o2=' + parameters.oxy[0] + '&max_o2=' + parameters.oxy[1] + '&min_year=' + year + '&max_year=' + year;
+            console.log(url)
             var downloadedData =  await d3.json(url).then(function(d){
                 let data = d
                 data.depth = data.depth.map(x => -x)
@@ -112,6 +113,7 @@ var data, savedData = {
         }
         function saveView(){
             let name = prompt("Enter a name for your camera view")
+            if(name != null){
             let camLayout = myDiv.layout.scene.camera
             if(camLayout.up){
                 camLayoutUpdate = {
@@ -147,6 +149,7 @@ var data, savedData = {
             el.value = views.name.length - 1;
             viewsList.add(el)
             Cookies.set('views', views)
+            }
         }
         function w3_open(id) {
             var i = 0;
@@ -162,16 +165,84 @@ var data, savedData = {
             }
         }
         function switchOcean(long){
+            let longTemp = []
             for(i in long){
-                if(long[i] <= 180){
-                    long[i] = long[i]
+                longTemp[i] = long[i]
+            }
+            for(i in longTemp){
+                if(longTemp[i] <= 180){
+                     longTemp[i] = longTemp[i]
                 }
-                else if (long[i] > 180){
-                    long[i] = long[i] - 360
+                else if (longTemp[i] > 180){
+                     longTemp[i] = longTemp[i] - 360
                 }
             }
-            console.log(long)
-            return long
+            console.log(longTemp)
+            return longTemp
+        }
+        function oxySliderUnits(){
+            var oxyMenu = document.getElementById("oxygen-menu");
+            var oxyUnits = oxyMenu.options[oxyMenu.selectedIndex].id;
+            switch(oxyUnits){
+                case 'oxy1':
+                    oxyUnitConversion = 1
+                    maxOxyValue = 400
+                    oxyStep = 5
+                    oxyDecimals = 0
+                    break;
+                case 'oxy2':
+                    oxyUnitConversion = 44.66
+                    maxOxyValue = 10
+                    oxyStep = .5
+                    oxyDecimals = 1
+                    break;
+                case 'oxy3':
+                    oxyUnitConversion = 31.25
+                    maxOxyValue = 14
+                    oxyStep = .5
+                    oxyDecimals = 1
+                    break;
+                case 'oxy4':
+                    oxyUnitConversion = 500.2
+                    maxOxyValue = .9
+                    oxyStep = .05
+                    oxyDecimals = 2
+                    break;
+                    
+            }
+        }
+        function toPolar(long, lat, ocean){
+            let x = [], y = []
+            if(ocean == 'antarctic'){
+                for(i in long){
+                    if(lat[i]<0){
+                        x[i] = Math.cos((long[i]*Math.PI)/180) * (lat[i] + 90)
+                        y[i] = Math.sin((long[i]*Math.PI)/180) * (lat[i] + 90)
+
+                    }
+                    if(lat[i]>=0){
+                        x[i]= 800
+                        y[i]= 800
+
+                    }
+                }
+            }
+            if(ocean == 'arctic'){
+                for(i in long){
+                    if(lat[i]>0){
+                        x[i] = Math.cos((long[i]*Math.PI)/180) * (Math.abs(lat[i] - 90))
+                        y[i] = Math.sin((long[i]*Math.PI)/180) * (Math.abs(lat[i] - 90))
+
+                    }
+                    if(lat[i]<=0){
+                        x[i]= 800
+                        y[i]= 800
+
+                    }
+                }
+            }
+            console.log(x,y)
+            return [x,y]
         }
 
         noUiSlider.create(tempSlider, {
@@ -205,9 +276,9 @@ var data, savedData = {
             start: [200, 220],
             connect: true,
             tooltips: [wNumb({
-                decimals: 0
+                decimals: oxyDecimals
             }), wNumb({
-                decimals: 0
+                decimals: oxyDecimals
             })],
             step: 1,
             range: {
@@ -218,14 +289,46 @@ var data, savedData = {
                 mode: 'positions',
                 values: [0, 25, 50, 75, 100],
                 density: 4
-            }
+            },
+            format: wNumb({
+                decimals: oxyDecimals
+            })
+            
         });
         var oxySnapValues = [
             document.getElementById('oxy-slider-value-lower'),
             document.getElementById('oxy-slider-value-upper')
         ];
-
-
+        var oxyMenu = document.getElementById("oxygen-menu");
+        oxyMenu.addEventListener('change', (event)=>{
+            console.log('click')
+                oxySliderUnits()
+            console.log(maxOxyValue,oxyStep,oxyDecimals)
+            oxySlider.noUiSlider.destroy()
+                noUiSlider.create(oxySlider, {
+            start: [200, 220],
+            connect: true,
+            tooltips: [wNumb({
+                decimals: oxyDecimals
+            }), wNumb({
+                decimals: oxyDecimals
+            })],
+            step: oxyStep,
+            range: {
+                'min': 0,
+                'max': maxOxyValue,
+            },
+            pips: {
+                mode: 'positions',
+                values: [0, 25, 50, 75, 100],
+                density: 4,
+                format: wNumb({
+                    decimals: oxyDecimals
+                })
+            },
+            
+        });
+            })
         //Salt Slider
         noUiSlider.create(saltSlider, {
             start: [33, 35],
@@ -317,7 +420,7 @@ var data, savedData = {
         opacitySlider.noUiSlider.on('set', updateOpacity)
         function getBath() {
             d3.csv("https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/bathymetry_60min.csv", function(d) {
-                depthData.lat.push(d.lat)
+                depthData.lat.push(parseFloat(d.lat))
                 if (d.long >= 0) {
                     depthData.long.push(parseFloat(d.long))
                 } //+ 180)
@@ -351,98 +454,6 @@ var data, savedData = {
                           
                       }*/
         }; //{{;
-        function relayoutPlot() {
-            var longDepth = depthData.long,
-                latDepth = depthData.lat,
-                oceanDepth = depthData.depth,
-                switchOceanBool = false
-            var basinMenu = document.getElementById("basin-menu");
-            var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
-            var basinId = basinMenu.options[basinMenu.selectedIndex].id;
-            var opacDepth = true,
-                depthOpac = depth.map(function(x) {
-                    return -x / 1000;
-                });
-            console.log(depthOpac);
-
-
-            var opacityValue = (opacitySlider.noUiSlider.get()) / 100;
-            console.log(opacityValue, lat);
-
-            if (basinValue == "0") {
-                var bound1 = 0,
-                    bound2 = 359.5,
-                    bound3 = -89,
-                    bound4 = 89;
-                xSize = 4
-            }
-            if (basinId == "northPacific") {
-                var bound1 = 90,
-                    bound2 = 294,
-                    bound3 = -10,
-                    bound4 = 67;
-                xSize = 2
-            }
-            if (basinId == "southPacific") {
-                var bound1 = 90,
-                    bound2 = 294,
-                    bound3 = -90,
-                    bound4 = 10;
-                xSize = 2
-            }
-            if (basinId == 'Atlantic') {
-                var bound1 = -100,
-                    bound2 = 20,
-                    bound3 = -80,
-                    bound4 = 80;
-                xSize = 2
-                switchOceanBool = true
-            }
-            var plotDiv = document.getElementById("plot");
-
-            var layout = {
-                autosize: true,
-                margin:{
-                    l:0,
-                    r:0,
-                    b:0,
-                    t:0,
-                    pad:0
-                },
-                scene: {
-                    aspectmode: "manual",
-                    aspectratio: {
-                        x: xSize,
-                        y: 2,
-                        z: 1,
-                    },
-                    xaxis: {
-                        nticks: 9,
-                        range: [bound1, bound2],
-                        title: 'Longitude',
-                    },
-                    yaxis: {
-                        nticks: 7,
-                        range: [bound3, bound4],
-                        title: 'Latitude',
-                    },
-                    zaxis: {
-                        nticks: 3,
-                        range: [-6000, 1],
-                        title: 'Depth',
-                    },
-                    camera: {
-                        eye: {
-                            x: 0,
-                            y: -3,
-                            z: 4
-                        }
-                    }
-                }
-            };
-
-        }
-
         async function buttonClick() {
             var basinMenu = document.getElementById("basin-menu");
             var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
@@ -452,6 +463,9 @@ var data, savedData = {
                 oxyValues = oxySlider.noUiSlider.get(),
                 saltValues = saltSlider.noUiSlider.get(),
                 selectYear = yearSlider.noUiSlider.get();
+            oxyValues[0] = parseFloat(oxyValues[0])*oxyUnitConversion
+            oxyValues[1] = parseFloat(oxyValues[1])*oxyUnitConversion
+            console.log(oxyValues)
             if(!allSliderValues[1]){
                 allSliderValues[1] = 0
             }
@@ -628,7 +642,7 @@ var data, savedData = {
             var basinMenu = document.getElementById("basin-menu");
             var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
             console.log(relayoutBool)
-            var basinId = basinMenu.options[basinMenu.selectedIndex].id
+            var basinId = basinMenu.options[basinMenu.selectedIndex].id, xSize, ySize
 
             var opacDepth = true,
                 depthOpac = depth.map(function(x) {
@@ -645,32 +659,82 @@ var data, savedData = {
                         bound3 = -89,
                         bound4 = 89;
                     xSize = 4
+                    ySize = 2
+                    var newLong = long,
+                        newLongDepth = depthData.long
                     break;
                 case 'northPacific':
                     var bound1 = 90,
                         bound2 = 294,
                         bound3 = -10,
                         bound4 = 67;
-                    xSize = 3.5
+                    xSize = 2.267
+                    ySize = .865
+                    var newLong = long,
+                        newLongDepth = depthData.long
                     break;
                 case 'southPacific':
                     var bound1 = 90,
                         bound2 = 294,
                         bound3 = -90,
                         bound4 = 10;
-                    xSize = 3.5
+                    xSize = 2.267
+                    ySize = 1.124
+                    var newLong = long,
+                        newLongDepth = depthData.long
                     break;
                 case 'atlantic':
                     var bound1 = -100,
                         bound2 = 20,
                         bound3 = -80,
                         bound4 = 80;
-                    xSize = 1.7
-                    long = switchOcean(long)
-                    longDepth = switchOcean(longDepth)
+                    xSize = 1.333
+                    ySize = 1.8
+                    var newLong = switchOcean(long)
+                    var newLongDepth = switchOcean(longDepth)
                     break;
                 case 'indian':
-                    var bound1 = 
+                    var bound1 = 20,
+                        bound2 = 120,
+                        bound3 = -80,
+                        bound4 = 30
+                    xSize = 1.111
+                    ySize = 1.236
+                    var newLong = long,
+                        newLongDepth = depthData.long
+                    break;
+                case 'arctic':
+                    var bound1 = 50,
+                        bound2 = -50,
+                        bound3 = 50,
+                        bound4 = -50
+                    xSize = 4
+                    ySize = 4
+                    var coords = toPolar(long, lat,'arctic'),
+                        coordsDepth = toPolar(longDepth, latDepth,'arctic')
+                    
+                    
+                    var newLong = coords[0]
+                    lat = coords[1]
+                    var newLongDepth = coordsDepth[0]
+                    latDepth = coordsDepth[1]
+                    break;
+                case 'antarctic':
+                    var bound1 = 40,
+                        bound2 = -40,
+                        bound3 = 40,
+                        bound4 = -40
+                    xSize = 4
+                    ySize = 4
+                    var coords = toPolar(long, lat,'antarctic'),
+                        coordsDepth = toPolar(longDepth, latDepth,'antarctic')
+                    
+                    
+                    var newLong = coords[0]
+                    lat = coords[1]
+                    var newLongDepth = coordsDepth[0]
+                    latDepth = coordsDepth[1]
+                    break;
             }
             var plotDiv = document.getElementById("plot");
 
@@ -680,7 +744,7 @@ var data, savedData = {
                     aspectmode: "manual",
                     aspectratio: {
                         x: xSize,
-                        y: 2,
+                        y: ySize,
                         z: 1,
                     },
                     xaxis: {
@@ -710,7 +774,7 @@ var data, savedData = {
             var dataset = [{
                     type: 'scatter3d',
                     mode: 'markers',
-                    x: long,
+                    x: newLong,
                     y: lat,
                     z: depth,
                     opacity: 1,
@@ -733,7 +797,7 @@ var data, savedData = {
                 {
                     opacity: opacityValue,
                     type: 'mesh3d',
-                    x: longDepth,
+                    x: newLongDepth,
                     y: latDepth,
                     z: oceanDepth,
                     showscale: false,
@@ -754,46 +818,29 @@ var data, savedData = {
             if (isUpdate && relayoutBool) {
                 console.log("update layout", dataset, long)
                 Plotly.update('myDiv', {
-                    x: [long],
-                    y: [lat],
-                    z: [depth],
-                    opacity: [1],
-                    group: [depthOpac],
-                    marker: {
-                        opacity: 1,
-                        size: 3,
-                        cmin: -1000,
-                        cmax: 0,
-                        colorscale: [
-                            ['0.0', 'rgb(165,0,38)'],
-                            ['0.111111111111', 'rgb(215,48,39)'],
-                            ['0.222222222222', 'rgb(244,109,67)'],
-                            ['0.333333333333', 'rgb(253,174,97)'],
-                            ['0.444444444444', 'rgb(254,224,144)'],
-                            ['0.555555555556', 'rgb(224,243,248)'],
-                            ['0.666666666667', 'rgb(171,217,233)'],
-                            ['0.777777777778', 'rgb(116,173,209)'],
-                            ['0.888888888889', 'rgb(116,173,209)'],
-                            ['1.0', 'rgb(69,117,180)']
-                        ],
-                        color: depth
-                    },
+                    x: [newLong, newLongDepth],
+                    y: [lat,latDepth],
+                    z: [depth,oceanDepth],
+                    opacity: [1,opacityValue],
+                    group: [depthOpac,undefined],
+                    
                     hovertext: year
 
                 }, {
                     'scene.xaxis.range': [bound1, bound2],
                     'scene.yaxis.range': [bound3, bound4],
-                    'scene.aspectratio.x': xSize
-                }, 0)
+                    'scene.aspectratio.x': xSize,
+                    'scene.aspectratio.y': ySize
+                }, [0,1])
             }
             if (isUpdate && !relayoutBool) {
                 console.log("update data", dataset, long)
-                Plotly.restyle('myDiv', {
-                    x: [long],
-                    y: [lat],
-                    z: [depth],
-                    opacity: [1],
-                    group: [depthOpac],
+                Plotly.update('myDiv', {
+                    x: [newLong,newLongDepth],
+                    y: [lat, undefined],
+                    z: [depth,undefined],
+                    opacity: [1,undefined],
+                    group: [depthOpac,undefined],
                     marker: {
                         opacity: 1,
                         size: 3,
@@ -801,21 +848,14 @@ var data, savedData = {
                         cmax: 0,
                         colorscale: [
                             ['0.0', 'rgb(165,0,38)'],
-                            ['0.111111111111', 'rgb(215,48,39)'],
-                            ['0.222222222222', 'rgb(244,109,67)'],
-                            ['0.333333333333', 'rgb(253,174,97)'],
-                            ['0.444444444444', 'rgb(254,224,144)'],
-                            ['0.555555555556', 'rgb(224,243,248)'],
-                            ['0.666666666667', 'rgb(171,217,233)'],
-                            ['0.777777777778', 'rgb(116,173,209)'],
-                            ['0.888888888889', 'rgb(116,173,209)'],
-                            ['1.0', 'rgb(69,117,180)']
+                            ['0.555555555556', 'rgb(255,191,0)'],
+                            ['1.0', 'rgb(35,136,35)']
                         ],
                         color: depth
                     },
                     hovertext: year
 
-                }, 0)
+                },{}, [0,1])
             }
             if (!isUpdate) {
                 Plotly.newPlot('myDiv', dataset, layout, {
@@ -841,11 +881,8 @@ var data, savedData = {
             }
         }
 
-        function filterByDepth() {
+        function filterByDepth(data1) {
             var depthRange = depthSlider.noUiSlider.get();
-            data1 = JSON.parse(JSON.stringify(data));
-            console.log(dataUnfiltered);
-            console.log(data1);
             for (var i = 1; i < data1.depth.length; i++) {
                 if (data1.depth[i] > -depthRange[0] || data1.depth[i] < -depthRange[1]) {
                     data1.depth.splice(i, 1);
@@ -858,7 +895,7 @@ var data, savedData = {
                     i--;
                 }
             }
-            console.log(data1, dataUnfiltered);
+            return data1;
         }
 
         function dataList(listItems, list) {
@@ -880,6 +917,8 @@ var data, savedData = {
                 oxyValues = oxySlider.noUiSlider.get(),
                 saltValues = saltSlider.noUiSlider.get(),
                 selectYear = yearSlider.noUiSlider.get();
+            oxyValues[0] = parseFloat(oxyValues[0])*oxyUnitConversion
+            oxyValues[1] = parseFloat(oxyValues[1])*oxyUnitConversion
             allSliderValues = {
                 'temp': tempValues,
                 'salt': saltValues,
@@ -964,6 +1003,8 @@ var data, savedData = {
             var saveSelect = saveList.options[saveList.selectedIndex].value;
             let params = JSON.parse(JSON.stringify(savedData.params[saveSelect]))
             console.log(params)
+            params.oxy[0] = params.oxy[0]/oxyUnitConversion
+            params.oxy[1] = params.oxy[1]/oxyUnitConversion
             saltSlider.noUiSlider.set(params.salt)
             tempSlider.noUiSlider.set(params.temp)
             oxySlider.noUiSlider.set(params.oxy)
@@ -983,10 +1024,10 @@ var data, savedData = {
             setTimeout(function(){buttonClick()},100);
         }
         function buttonPlot() {
-            filterByDepth();
+            let dataFiltered = filterByDepth(data);
             document.getElementById('ready').innerHTML = "Data Status: Rendering"
         
-            makePlotly(data.lat, data.lon, data.depth, data.year, depthData.long, depthData.lat, depthData.depth);
+            makePlotly(dataFiltered.lat, dataFiltered.lon, dataFiltered.depth, dataFiltered.year, depthData.long, depthData.lat, depthData.depth);
             
             
         }
