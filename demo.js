@@ -151,6 +151,9 @@ var data, savedData = {
             Cookies.set('views', views)
             }
         }
+        function save_species_to_cloud(species){
+            http
+        }
         function w3_open(id) {
             var i = 0;
             if (!isOpen && i == 0) {
