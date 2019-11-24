@@ -1,6 +1,3 @@
-
-
-
 var data, savedData = {
                 name: [],
                 data: [],
@@ -55,6 +52,7 @@ var data, savedData = {
         if (Cookies.get('views')) {
             views = JSON.parse(Cookies.get('views'))
         }
+        cloudSpeciesList()
         dataList(savedData, saveList)
         dataList(savedData, speciesList1)
         dataList(savedData, speciesList2)
@@ -166,6 +164,118 @@ var data, savedData = {
                 isOpen = false;
                 i++;
             }
+        }
+        async function cloudSpeciesList(){
+            function removeOptions(selectbox)
+            {
+                var i;
+                for(i = selectbox.options.length - 1 ; i >= 0 ; i--)
+                {
+                    selectbox.remove(i);
+                }
+            }
+            
+            cloudSpecies = await d3.json("test2.php", function(data){
+                return data
+            })
+            
+            let list = document.getElementById("cloudSaveList")
+            removeOptions(list)
+            console.log(cloudSpecies, list)
+            let options = []
+            for (i in cloudSpecies) {
+                var opt = cloudSpecies[i].name
+                var el = document.createElement("option")
+                el.textContent = opt
+                el.value = i;
+                el.id = cloudSpecies[i].id
+                list.add(el)
+            }
+        }
+        function loadCloudDataset(){
+            
+            let list = document.getElementById("cloudSaveList")
+            var cloudSaveSelect = list.options[list.selectedIndex].id;
+            let selectedSpecies
+            for(i in cloudSpecies){
+                if(cloudSpecies[i].id == cloudSaveSelect){
+                    selectedSpecies = cloudSpecies[i]
+                }
+            }
+            console.log(selectedSpecies)
+            saltSlider.noUiSlider.set([selectedSpecies.salt_min, selectedSpecies.salt_max])
+            tempSlider.noUiSlider.set([selectedSpecies.temp_min, selectedSpecies.temp_max])
+            oxySlider.noUiSlider.set([selectedSpecies.oxygen_min, selectedSpecies.oxygen_max])
+            
+        }
+        function loadDataset() {
+            var saveSelect = saveList.options[saveList.selectedIndex].value;
+            let params = JSON.parse(JSON.stringify(savedData.params[saveSelect]))
+            console.log(params)
+            params.oxy[0] = params.oxy[0]/oxyUnitConversion
+            params.oxy[1] = params.oxy[1]/oxyUnitConversion
+            saltSlider.noUiSlider.set(params.salt)
+            tempSlider.noUiSlider.set(params.temp)
+            oxySlider.noUiSlider.set(params.oxy)
+
+        }
+        function getAllParameters(){
+            let tempValues = tempSlider.noUiSlider.get(),
+                oxyValues = oxySlider.noUiSlider.get(),
+                saltValues = saltSlider.noUiSlider.get(),
+                selectYear = yearSlider.noUiSlider.get()
+            oxyValues[0] = parseFloat(oxyValues[0])*oxyUnitConversion
+            oxyValues[1] = parseFloat(oxyValues[1])*oxyUnitConversion
+            let allSliderValues = {
+                'temp': tempValues,
+                'salt': saltValues,
+                'oxy': oxyValues
+            }
+            return [allSliderValues, selectYear];
+        }
+        function openSaveForm(){
+            document.getElementById("testbox").style.display = "flex"
+        }
+        function saveToDatabase(){
+            let [allParams, year] = getAllParameters()
+            let commonName = document.getElementById("common-name").value,
+                sciName = document.getElementById("scientific-name").value,
+                givenName = document.getElementById("given-name").value,
+                familyName = document.getElementById("family-name").value,
+                referenceDoi = document.getElementById("reference-doi").value,
+                referenceDoiUrl = document.getElementById("reference-doi-url").value,
+                checkboxes = document.getElementById("checkboxes"),
+                speciesType
+            let url = "test.php";
+            
+            for(let i = 0; i<checkboxes.children.length; i++){
+                console.log(checkboxes.children[i])
+                if(checkboxes.children[i].type == 'checkbox'){
+                    if(checkboxes.children[i].checked){
+                        speciesType = checkboxes.children[i].value
+                    }
+                }
+            }
+            
+            let params = "name=" + commonName + "&sci_name=" + sciName + "&species_type=" + speciesType + "&oxy_min=" + allParams.oxy[0] + "&oxy_max=" + allParams.oxy[1] + "&salt_min=" + allParams.salt[0] + "&salt_max=" + allParams.salt[1] + "&temp_min=" + allParams.temp[0] + "&temp_max=" + allParams.temp[1] + "&given_name=" + givenName + "&family_name=" + familyName + "&reference_doi=" + referenceDoi + "&reference_doi_url=" + encodeURIComponent(referenceDoiUrl) ;
+            console.log(params)
+            let http = new XMLHttpRequest();
+            
+
+            http.open("GET", url+"?"+params, true);
+            http.onreadystatechange = function()
+            {
+                if(http.readyState == 4 && http.status == 200) {
+                    console.log(http.responseText);
+                }
+            }
+            http.send(null);
+            document.getElementById("testbox").style.display = "none"
+            setTimeout(function () {
+                
+                    cloudSpeciesList()
+                
+            }, 2000);
         }
         function switchOcean(long){
             let longTemp = []
@@ -422,7 +532,7 @@ var data, savedData = {
         ];
         opacitySlider.noUiSlider.on('set', updateOpacity)
         function getBath() {
-            d3.csv("https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/bathymetry_60min.csv", function(d) {
+            d3.csv("bathymetry_60min.csv", function(d) {
                 depthData.lat.push(parseFloat(d.lat))
                 if (d.long >= 0) {
                     depthData.long.push(parseFloat(d.long))
@@ -461,7 +571,6 @@ var data, savedData = {
             var basinMenu = document.getElementById("basin-menu");
             var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
             console.log(basinValue);
-            document.getElementById('ready').innerHTML = 'Data status: ';
             var tempValues = tempSlider.noUiSlider.get(),
                 oxyValues = oxySlider.noUiSlider.get(),
                 saltValues = saltSlider.noUiSlider.get(),
@@ -1002,17 +1111,7 @@ var data, savedData = {
             speciesList2.add(el2);
         }
 
-        function loadDataset() {
-            var saveSelect = saveList.options[saveList.selectedIndex].value;
-            let params = JSON.parse(JSON.stringify(savedData.params[saveSelect]))
-            console.log(params)
-            params.oxy[0] = params.oxy[0]/oxyUnitConversion
-            params.oxy[1] = params.oxy[1]/oxyUnitConversion
-            saltSlider.noUiSlider.set(params.salt)
-            tempSlider.noUiSlider.set(params.temp)
-            oxySlider.noUiSlider.set(params.oxy)
-
-        }
+        
 
         function resetView() {
             var viewSelect = viewsList.options[viewsList.selectedIndex].value
@@ -1028,7 +1127,6 @@ var data, savedData = {
         }
         function buttonPlot() {
             let dataFiltered = filterByDepth(data);
-            document.getElementById('ready').innerHTML = "Data Status: Rendering"
         
             makePlotly(dataFiltered.lat, dataFiltered.lon, dataFiltered.depth, dataFiltered.year, depthData.long, depthData.lat, depthData.depth);
             

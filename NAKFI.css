@@ -2,7 +2,7 @@ html,
 body {
     height: 100%;
     margin: 0px;
-    overflow: hiden;
+    overflow: hidden;
 }
 
 body.waiting {
@@ -120,16 +120,20 @@ input {
     justify-content: center;
     align-items: center;
     height: inherit;
+    width: inherit;
     padding: 3px;
-    z-index: 0;
-    margin-left: 50;
+    z-index: 10;
+    margin-left: 30%;
+    position: absolute;
+    
 }
 
 form {
-    width: 30%;
+    width: 60%;
     padding: 20px;
     background: #4A4A4A;
     box-shadow: 0 2px 5px #ccc;
+    position: relative;
 }
 
 input,
@@ -305,6 +309,8 @@ select {
     padding: 0px;
     margin: 0px;
     overflow: hidden;
+    position: relative;
+    z-index: 0;
 }
 
 #basin-menu {
@@ -320,12 +326,12 @@ select {
 }
 
 h1 {
-    color: white;
-    font-size: 24px;
-    padding: 10px;
-    font-family: 'Muli', sans-serif;
-    font-weight: 100;
-
+    font-family: Muli-SemiBold;
+    font-size: 20px;
+    color: #FFFFFF;
+    letter-spacing: 0.2px;
+    text-align: left; (align left with left edges of buttons/sliders)
+    text-transform: lowercase;
 }
 
 h6 {

@@ -124,35 +124,35 @@
         <form action="/">
             <h1>Save Species to Cloud</h1>
             <div class="item">
-                <input type="text" name="name" placeholder="common name*" />
+                <input type="text" name="name" id="common-name" placeholder="common name*" />
             </div>
             <div class="item">
-                <input type="text" name="name" placeholder="scientific name" />
+                <input type="text" name="name" id="scientific-name" placeholder="scientific name" />
             </div>
             <div class="item">
                 <div class="name-item">
-                    <input type="text" name="name" placeholder="your given name" />
-                    <input type="text" name="name" placeholder="your family name" />
+                    <input type="text" name="name" id = "given-name" placeholder="your given name" />
+                    <input type="text" name="name" id = "family-name"placeholder="your family name" />
                 </div>
             </div>
             <div class="item">
-                <input type="text" name="name" placeholder="reference DOI" />
+                <input type="text" name="name" id="reference-doi" placeholder="reference DOI" />
             </div>
             <div class="item">
-                <input type="text" name="name" placeholder="reference DOI link" />
+                <input type="text" name="name" id="reference-doi-url" placeholder="reference DOI link" />
 
             </div>
             <div class="item">
                 <div class="name-item">
-                    <div class="checkboxes">
+                    <div class="checkboxes" id='checkboxes'>
 
                         <input type="checkbox" name="species-type" value="vertebrate"><label>Vertebrate</label><br>
                         <input type="checkbox" name="species-type" value="invertebrate"><label>Invertebrate</label><br>
                         <input type="checkbox" name="species-type" value="microorganism"><label>Microorganism</label><br>
-                        <button type="submit" href="/">submit</button>
+                        <button  onclick="saveToDatabase()">submit</button>
 
                     </div>
-                    <textarea name="name" cols="1" rows="5" placeholder="tags (seperate by commas)"></textarea>
+                    <textarea name="name" cols="1" rows="5" id="tags" placeholder="tags (seperate by commas)"></textarea>
                 </div>
             </div>
 
