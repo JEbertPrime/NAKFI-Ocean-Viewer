@@ -4,11 +4,9 @@ class selectionRect {
         
         this.svg = d3.select('#' + svgId);
         if(document.getElementById("selection")){
-            //console.log("poop");
+            //removes old selection box
             var element = d3.select("#selection");
-            //console.log(element)
             element.remove();}
-        //console.log(this.svg);
         this.rectElement = this.svg.append("rect")
 		    .attrs({
 		        rx      : 0,
@@ -19,13 +17,11 @@ class selectionRect {
 		        height  : 0
 		    })
 		    .classed("selection", true).attr("id","selection");
-        //console.log(this.rectElement);
         this.element = this.rectElement;
         this.previousElement = null;
 	    this.setElement(this.rectElement);
 		this.originX = newX;
 		this.originY = newY;
-        //console.log(this.originY);
 		this.update(newX, newY);
         
 
@@ -128,7 +124,7 @@ class selectMap {
         this.svgHeight = parseInt(getComputedStyle(this.svg.node()).height, 10);
         this.rect = null;
         this.overflow = null;
-/*        this.startCoords = this.svg.on("mousedown.log", function() {
+        this.startCoords = this.svg.on("mousedown.log", function() {
                               var startCoords = d3.geoEquirectangular().invert(d3.mouse(this));
                                 console.log(startCoords);
                                 return startCoords;
@@ -137,7 +133,7 @@ class selectMap {
                               var startCoords = d3.geoEquirectangular().invert(d3.mouse(this));
                                 console.log(startCoords);
                                 return startCoords;
-                            });*/
+                            });
         //console.log(this);
         this.drawMap();
     }
@@ -167,9 +163,10 @@ class selectMap {
     
     
     drag() {
+        let svgWidth = this.svgWidth
         function dragStart() {
         var svgId = this;
-        //console.log(this.svgId);
+        
         //console.log("dragStart");
         var p = d3.mouse(this);
             b = true;
@@ -177,18 +174,21 @@ class selectMap {
         //console.log(this.rect);
     };
         function dragMove() {
+            
         //console.log("dragMove");
         var svg = this;
         var p = d3.mouse(this);
+            console.log(p, this.svgWidth)
         if(b){
             this.rect.update(p[0], p[1]);}
         if(!b){
             this.rect.update(p[0]-parseInt(getComputedStyle(this).width), p[1]);     
         }
-        if(p[0] > this.svgWidth && !b){
+        if(p[0] > svgWidth && b){
+            console.log('poop')
             var y = this.rect.originY;
             this.overflow = new selectionRect(p[0]-parseInt(getComputedStyle(this).width), y);
-            //b = false;
+            b = false;
         }
     };
         

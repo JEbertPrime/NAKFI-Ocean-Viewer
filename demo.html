@@ -4,16 +4,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="nouislider.js"></script>
-    <script src="dataOverlap.js"></script>
-    <script src="wNumb.js"></script>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src='modules/functions.js'></script>
+    <script src='modules/nouislider.js'></script>
+    <script src="modules/wNumb.js"></script>
+    <script src="modules/d3.min.js"></script>
     <link rel="stylesheet" type="text/css" href="nouislider.css">
-    <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
-    <script src="plotly.js"></script>
-    <script src="selectMap.js"></script>
-    <script src="https://d3js.org/d3-geo.v1.min.js"></script>
-    <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
+    <script src="modules/plotly.js"></script>
+    <script src="modules/selectMap.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 
 
@@ -24,15 +21,30 @@
 
 <body>
     <div class="parent" id="parent">
+        
         <div class="superbar" id="superbar">
 
             <div class="topbar">
-                <h1>mapping the deep</h1>
+                <h1 class="title">mapping the deep</h1>
+            </div>
+            <div id="species-select" display="none">
+                <div id="custom-select"></div>
+                <div id="info">
+                    <div>
+                        <img id="category">
+                        <div>
+                            <h2 id="display-common-name"></h2>
+                            <h3 id="display-sci-name"></h2>
+                        </div>
+                        <h4 id="doi"></h4>
+                    </div>
+                    
+                </div>
             </div>
             <div class="sidebar" id="sidebar">
-                <h6>TEMPERATURE</h6>
+                <h6 class="slider-title">TEMPERATURE</h6>
                 <div class="slider" id="tempSlider"></div>
-                <h6>OXYGEN </h6>
+                <h6 class="slider-title">OXYGEN </h6>
                 <select id="oxygen-menu">
                     <option id='oxy1'>mmol O&#x2082; / m&#xb3;</option>
                     <option id='oxy2'>mL/L</option>
@@ -40,12 +52,12 @@
                     <option id='oxy4'>mg-atoms O&#x2082; / L</option>
                 </select>
                 <div class="slider" id="oxySlider"></div>
-                <h6>SALINITY</h6>
+                <h6 class="slider-title">SALINITY</h6>
                 <div class="slider" id="saltSlider"></div>
-                <h6>YEAR</h6>
+                <h6 class="slider-title">YEAR</h6>
 
                 <div class="slider" id="yearSlider"></div>
-                <h6>Depth Range</h6>
+                <h6 class="slider-title">Depth Range</h6>
                 <div class="slider" id="depthSlider"></div>
                 <div>
                     <h6 style="margin-top: 30px">Choose Basin</h6>
@@ -62,6 +74,7 @@
                 </div>
                 <button class="button" onclick="showSpecies()">Display Data</button>
                 <button class="button" onclick="saveDataset(data)">Save Parameters</button>
+                <button class="button" onclick="openSaveForm()"> Save Species to Cloud</button>
 
 
 
@@ -95,9 +108,14 @@
 
         <div class="viewer-menu" id="data-menu">
             <div>
-                <h6>Load Saved Parameters</h6>
+                <h6>Load Local Saved Parameters</h6>
                 <select style="width:70px;" id="saveList"></select>
                 <button class="button" onclick="loadDataset()">Load Parameters</button>
+            </div>
+            <div>
+                <h6>Load Cloud Saved Parameters</h6>
+                <select style="width:70px;" id="cloudSaveList"></select>
+                <button class="button" onclick="loadCloudDataset()">Load Parameters</button>
             </div>
             <div>
                 <h6>Compare Datasets (select data and year)</h6>
@@ -120,48 +138,50 @@
             </div>
         </div>
     </div>
-    <div class="testbox">
-        <form action="/">
-            <h1>Save Species to Cloud</h1>
+    <div class="testbox" id="testbox">
+        <div class='formbox'>
+                    <button id="x" onclick='closeSaveForm()'>X</button>
+
+            <h1 class='title'>Save Species to Cloud</h1>
             <div class="item">
-                <input type="text" name="name" placeholder="common name*" />
+                <input type="text" name="name" id="common-name" placeholder="common name*" />
             </div>
             <div class="item">
-                <input type="text" name="name" placeholder="scientific name" />
+                <input type="text" name="name" id="scientific-name" placeholder="scientific name" />
             </div>
             <div class="item">
                 <div class="name-item">
-                    <input type="text" name="name" placeholder="your given name" />
-                    <input type="text" name="name" placeholder="your family name" />
+                    <input type="text" name="name" id = "given-name" placeholder="your given name" />
+                    <input type="text" name="name" id = "family-name"placeholder="your family name" />
                 </div>
             </div>
             <div class="item">
-                <input type="text" name="name" placeholder="reference DOI" />
+                <input type="text" name="name" id="reference-doi" placeholder="reference DOI" />
             </div>
             <div class="item">
-                <input type="text" name="name" placeholder="reference DOI link" />
+                <input type="text" name="name" id="reference-doi-url" placeholder="reference DOI link" />
 
             </div>
             <div class="item">
                 <div class="name-item">
-                    <div class="checkboxes">
+                    <div class="checkboxes" id='checkboxes'>
 
                         <input type="checkbox" name="species-type" value="vertebrate"><label>Vertebrate</label><br>
                         <input type="checkbox" name="species-type" value="invertebrate"><label>Invertebrate</label><br>
                         <input type="checkbox" name="species-type" value="microorganism"><label>Microorganism</label><br>
-                        <button type="submit" href="/">submit</button>
+                        <button  onclick="saveToDatabase()">Submit to Database</button>
 
                     </div>
-                    <textarea name="name" cols="1" rows="5" placeholder="tags (seperate by commas)"></textarea>
+                    
                 </div>
             </div>
 
             <div class="btn-block">
             </div>
-        </form>
+        </div>
     </div>
     <p id='demo'></p>
-    <script src='demo.js'></script>
+    <script src='main.js'></script>
 
     <div id="myDiv">
 

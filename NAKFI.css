@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=Heebo|Muli&display=swap');
+
 html,
 body {
     height: 100%;
     margin: 0px;
-    overflow: hiden;
+    overflow: hidden;
 }
 
 body.waiting {
@@ -116,20 +118,25 @@ input {
 }
 
 .testbox {
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     height: inherit;
+    width: inherit;
     padding: 3px;
-    z-index: 0;
-    margin-left: 50;
+    z-index: 10;
+    margin-left: 30%;
+    position: absolute;
+    
 }
 
-form {
-    width: 30%;
+.formbox {
+    width: 60%;
     padding: 20px;
     background: #4A4A4A;
     box-shadow: 0 2px 5px #ccc;
+    position: relative;
+    border-radius: 5px;
 }
 
 input,
@@ -301,10 +308,13 @@ select {
 #myDiv {
     float: right;
     width: 83vw;
+    min-width: calc(100%-300px);
     height: 100%;
     padding: 0px;
     margin: 0px;
     overflow: hidden;
+    position: relative;
+    z-index: 0;
 }
 
 #basin-menu {
@@ -319,25 +329,59 @@ select {
     border: 1px solid white;
 }
 
-h1 {
+h1.title {
     color: white;
-    font-size: 24px;
+    font-size: 20px;
     padding: 10px;
     font-family: 'Muli', sans-serif;
-    font-weight: 100;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-align: left; 
+    text-transform: lowercase;
 
 }
 
 h6 {
     color: white;
-    font-size: 10px;
+    font-size: 11px;
     margin-bottom: 2px;
     font-family: 'Muli', sans-serif;
-    letter-spacing: .1em;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-align: left;
+    line-height: 14px;
+    text-transform: uppercase;
 
 }
+label{
+    color: white;
+    font-size: 11px;
+    margin-bottom: 2px;
+    font-family: 'Muli', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-align: left;
+    line-height: 14px;
+    text-transform: uppercase;
+}
+h6.slider-title {
+    font-family: 'Muli', sans-serif;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 1px;
+    line-height: 14px;
+    text-transform: uppercase;
+}
 
-
+.noUi-value-large{
+    font-family: "Heebo", sans-serif;
+    font-weight: 400;
+    font-size: 10px;
+    color: #FFFFFF;
+    letter-spacing: 0.3px;
+    line-height: 12px;
+}
 
 button {
     background-color: #E1E1D5;
@@ -350,7 +394,17 @@ button {
 }
 
 button:hover {}
-
+#x{
+    font-family: Arial, sans-serif;
+    font-weight:300;
+    position:absolute;
+    float:right;
+    background:none;
+    border:none;
+    top:10px;
+    right:10px;
+    margin-bottom: -40px;
+}
 button:active {
     background-color: #D2D3CF;
     -webkit-transition-duration: 0.1s;
