@@ -544,8 +544,7 @@ function filterByDepth(data1) {
             }
         }
 function svgExport(){
-    plotly = document.getElementById(
-    'myDiv')
+    
 }
 class SpeciesData{
     constructor(data){

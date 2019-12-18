@@ -1,6 +1,4 @@
 
-
-
 var data, savedData = {
                 name: [],
                 data: [],
