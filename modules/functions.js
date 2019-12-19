@@ -543,6 +543,17 @@ function filterByDepth(data1) {
                 makePlotly(excluded2.lat, excluded2.lon, excluded2.depth)
             }
         }
+function switchSpeciesPanel(type){
+    if(type == 'custom'){
+        d3.select('#species-select').style("display","none")
+        d3.select('#sidebar').style("display","block")
+    }
+    if(type == 'species'){
+        d3.select('#sidebar').style("display","none")
+        d3.select('#species-select').style("display","block")
+    }
+    
+}
 function svgExport(){
     
 }
@@ -557,5 +568,35 @@ class SpeciesData{
             this.stringArray[i] = this.lon[i] + ", " + this.lat[i] + ", " + this.depth[i]
         }
         
+    }
+}
+class CustomSelect{
+    constructor(id, list=null){
+        this.id = id
+        this.element = d3.select("#" + id)
+        this.element.attr('class','custom-select')
+        this.wrapper = this.element.append('div').attr('class','select-wrapper')
+        console.log(this.element)
+        this.wrapper.append('div').attr('class','list-item selected')
+            .attr('id','default')
+            .html('--Select--')
+            
+        if(list){
+            this.list = list
+            this.fillSelect()
+        }
+        console.log(this)
+    }
+    
+    fillSelect(){
+        for(let i in this.list){
+            this.wrapper.append('div').attr('class','list-item')
+                .attr('id',this.list[i])
+                .style('display','none')
+                .append('p')
+                .attr('id',this.list[i])
+                .html(this.list[i])
+            
+        }
     }
 }
