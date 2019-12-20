@@ -1,4 +1,3 @@
-
 var data, savedData = {
                 name: [],
                 data: [],
@@ -16,7 +15,10 @@ var data, savedData = {
             },
             depthDataArray, speciesOneYear = 1861,
             speciesTwoYear = 1861,
-            relayoutBool = false;
+            relayoutBool = false,
+            basins = ['World','North Pacific','South Pacific','Atlantic','Indian','Arctic','Antarctic'],
+            basinIds = ['world','northPacific','southPacific','atlantic','indian','arctic','antarctic'],
+            basinId = 'world';
         var tempSlider = document.getElementById('tempSlider'),
             oxySlider = document.getElementById('oxySlider'),
             saltSlider = document.getElementById('saltSlider'),
@@ -53,12 +55,18 @@ var data, savedData = {
         if (Cookies.get('views')) {
             views = JSON.parse(Cookies.get('views'))
         }
+        var speciesBasinList = new CustomSelect('species-basin', basins,setBasinId)
+        var customBasinList = new CustomSelect('custom-basin', basins,setBasinId)
         cloudSpeciesList()
         dataList(savedData, saveList)
         dataList(savedData, speciesList1)
         dataList(savedData, speciesList2)
         dataList(views, viewsList)
-
+        d3.selectAll('.tab').on('click',function(){
+            switchSpeciesPanel(this.id)
+            tabClick(this)
+        })
+        
 
         noUiSlider.create(tempSlider, {
             start: [20, 25],
@@ -245,60 +253,8 @@ var data, savedData = {
                 depthData.depth.push(d.ocean_depth)
 
             })
-            /*const Http = new XMLHttpRequest();
-                  const url='https://cors-anywhere.herokuapp.com/http://temp.justinebert.com/depths.json'
-                  Http.open("GET", url);
-                  Http.send();
-                  Http.onreadystatechange=(e)=>{
-                      if(Http.readyState == 2 ){
-                        document.getElementById('ready').innerHTML = 'Data status: downloading';  
-                      }
-                      if (Http.readyState == 4 && Http.status == 200){
-                      document.getElementById('ready').innerHTML = 'Data status: ready';
-                      console.log(url);
-                      depthDataArray = JSON.parse(Http.responseText);
-                      
-                      for(i in depthDataArray){
-                          depthData.long[i] = depthDataArray[i].long-180;
-                          if(depthData.long[i]<-180){
-                              depthData.long[i] = depthDataArray[i].long + 180;
-                          }
-                          depthData.lat[i] = depthDataArray[i].lat;
-                          depthData.depth[i] = depthDataArray[i].depth;
-
-                          
-                      }*/
-        }; //{{;
-        async function buttonClick() {
-            var basinMenu = document.getElementById("basin-menu");
-            var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
-            console.log(basinValue);
-            var tempValues = tempSlider.noUiSlider.get(),
-                oxyValues = oxySlider.noUiSlider.get(),
-                saltValues = saltSlider.noUiSlider.get(),
-                selectYear = yearSlider.noUiSlider.get();
-            oxyValues[0] = parseFloat(oxyValues[0])*oxyUnitConversion
-            oxyValues[1] = parseFloat(oxyValues[1])*oxyUnitConversion
-            console.log(oxyValues)
-            if(!allSliderValues[1]){
-                allSliderValues[1] = 0
-            }
-            
-            allSliderValues[0] = {
-                'temp': tempValues,
-                'salt': saltValues,
-                'oxy': oxyValues
-            }
-            if(!isEquivalent(allSliderValues[0],allSliderValues[1])){
-                data = await downloadData(allSliderValues[0],selectYear)
-                allSliderValues[1] = allSliderValues[0]
-                buttonPlot()
-                
-            }
-            else if(isEquivalent(allSliderValues[0],allSliderValues[1])){
-                buttonPlot()
-            }
-        };
+        }; 
+        
 
 
 
@@ -310,11 +266,7 @@ var data, savedData = {
             var longDepth = depthData.long,
                 latDepth = depthData.lat,
                 oceanDepth = depthData.depth
-            var basinMenu = document.getElementById("basin-menu");
-            var basinValue = basinMenu.options[basinMenu.selectedIndex].value;
-            console.log(relayoutBool)
-            var basinId = basinMenu.options[basinMenu.selectedIndex].id, xSize, ySize
-
+            
             var opacDepth = true,
                 depthOpac = depth.map(function(x) {
                     return -x / 1000;

@@ -124,7 +124,10 @@ async function cloudSpeciesList(){
                 el.value = i;
                 el.id = cloudSpecies[i].id
                 list.add(el)
+                options[i] = cloudSpecies[i].name
             }
+            let cloudSpeciesSelect = new CustomSelect('select-box', options, updateFishInfo)
+            
         }
 function loadCloudDataset(){
             
@@ -406,7 +409,35 @@ function filterByDepth(data1) {
             cursorWaiting()
             setTimeout(function(){buttonClick()},100);
         }
+        async function buttonClick() {
+            var tempValues = tempSlider.noUiSlider.get(),
+                oxyValues = oxySlider.noUiSlider.get(),
+                saltValues = saltSlider.noUiSlider.get(),
+                selectYear = yearSlider.noUiSlider.get();
+            oxyValues[0] = parseFloat(oxyValues[0])*oxyUnitConversion
+            oxyValues[1] = parseFloat(oxyValues[1])*oxyUnitConversion
+            console.log(oxyValues)
+            if(!allSliderValues[1]){
+                allSliderValues[1] = 0
+            }
+            
+            allSliderValues[0] = {
+                'temp': tempValues,
+                'salt': saltValues,
+                'oxy': oxyValues
+            }
+            if(!isEquivalent(allSliderValues[0],allSliderValues[1])){
+                data = await downloadData(allSliderValues[0],selectYear)
+                allSliderValues[1] = allSliderValues[0]
+                buttonPlot()
+                
+            }
+            else if(isEquivalent(allSliderValues[0],allSliderValues[1])){
+                buttonPlot()
+            }
+        };
         function buttonPlot() {
+            console.log(data)
             let dataFiltered = filterByDepth(data);
         
             makePlotly(dataFiltered.lat, dataFiltered.lon, dataFiltered.depth, dataFiltered.year, depthData.long, depthData.lat, depthData.depth);
@@ -554,6 +585,45 @@ function switchSpeciesPanel(type){
     }
     
 }
+function tabClick(d){
+    console.log(d.classList)
+    if(d.classList.contains('active')){
+        return;
+    }
+    else{
+        d3.select('.active').attr('class','tab inactive')
+        d.className = 'active tab'
+    }
+}
+function updateFishInfo(selectObject){
+    console.log(selectObject.getSelectedItem()[1])
+    let speciesName = d3.select('#display-common-name')
+    let scienceName = d3.select('#display-sci-name')
+    let doi = d3.select("#doi")
+    let selection = selectObject.getSelectedItem()[1]
+    let critter = cloudSpecies[selection]
+    
+    console.log(critter)
+    speciesName.html(critter.name)
+    scienceName.html(critter.scientific_name)
+    doi.html("Reference DOI: " + critter.reference_doi)
+    saltSlider.noUiSlider.set([critter.salt_min, critter.salt_max])
+    tempSlider.noUiSlider.set([critter.temp_min, critter.temp_max])
+    oxySlider.noUiSlider.set([critter.oxygen_min, critter.oxygen_max])
+    
+}
+function setBasinId(selectObject){
+    let index = selectObject.getSelectedItem()[1]
+    basinId = basinIds[index]
+    setLayoutBool()
+}
+
+function setLayoutBool() {
+
+            relayoutBool = true;
+            console.log(relayoutBool)
+        }
+
 function svgExport(){
     
 }
@@ -562,6 +632,9 @@ class SpeciesData{
         this.lon = data.lon
         this.lat = data.lat
         this.depth = data.depth
+        this.o2 = data.o2
+        this.salt = data.salt
+        this.temp = data.temp
         this.year = data.year
         this.stringArray = []
         for(let i in this.lon){
@@ -571,32 +644,79 @@ class SpeciesData{
     }
 }
 class CustomSelect{
-    constructor(id, list=null){
+    constructor(id, list=null, clickEvent){
         this.id = id
         this.element = d3.select("#" + id)
         this.element.attr('class','custom-select')
         this.wrapper = this.element.append('div').attr('class','select-wrapper')
         console.log(this.element)
-        this.wrapper.append('div').attr('class','list-item selected')
+        let self = this
+        this.open = false
+        this.selected = ''
+        this.selectedItem = this.wrapper.append('div').attr('class','list-item selected')
             .attr('id','default')
-            .html('--Select--')
+            .on('click', function(){
+            self.clickHandler(this)
+        })
+        this.selectedItemText = this.selectedItem.append('p')
+            .html('Select')
             
+        this.arrow = this.wrapper.append('i').attr('class','arrow left')
+        this.optionsWrapper = this.wrapper.append('div').attr('class','options-wrapper').style('display','none').style('pointer-events','none')
         if(list){
             this.list = list
             this.fillSelect()
         }
+        this.clickEvent = clickEvent
         console.log(this)
     }
     
+    fillSelected(){
+        
+        this.selectedItemText.html(this.selected)
+    }
     fillSelect(){
+        let self = this
         for(let i in this.list){
-            this.wrapper.append('div').attr('class','list-item')
+            this.optionsWrapper.append('div').attr('class','list-item')
                 .attr('id',this.list[i])
-                .style('display','none')
+                .on('click', function(){
+                    self.clickHandler(this)
+                    self.clickEvent(self)
+            })
                 .append('p')
                 .attr('id',this.list[i])
                 .html(this.list[i])
+                
             
         }
+    }
+    clickHandler(element){
+        this.selected = element.id
+        console.log(this)
+        if(element.classList.contains('selected')&& !this.open){
+           this.optionsWrapper.style('display','block').style('pointer-events','auto')
+            this.arrow.attr('class','down')
+            this.selectedItem.style('border-radius','5px 5px 0px 0px')
+            this.open = true
+        }
+        else if(element.classList.contains('selected')&& this.open){
+            this.optionsWrapper.style('display','none').style('pointer-events','none')
+            this.arrow.attr('class','down')
+            this.selectedItem.style('border-radius','5px')
+            this.open = false
+
+        }
+        else if(!element.classList.contains('selected')){
+            this.optionsWrapper.style('display','none').style('pointer-events','none')
+            this.arrow.attr('class','left')
+            this.selectedItem.style('display','block')
+            this.selectedItem.style('border-radius','5px')
+            this.open = false
+            this.fillSelected()
+        }
+    }
+    getSelectedItem(){
+        return [this.selected, this.list.indexOf(this.selected)]
     }
 }

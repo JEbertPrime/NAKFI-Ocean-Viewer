@@ -40,11 +40,125 @@ body.waiting {
     z-index: 1;
 
 }
-
+#buttons{
+    margin-top:10px;
+    margin-left:15px;
+    position: relative;
+}
+#species-basin{
+    margin:15px;
+    margin-top: 0px;
+    width:80%;
+    height:40px;
+    position:relative;
+}
+#custom-basin{
+    margin:1px;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    width:60%;
+    height:40px;
+    position:relative;
+}
+#custom-basin p{
+    color:black;
+}
+#species-select{
+    padding-top: 10px;
+    position:absolute;
+    width:90%;
+}
+#select-basin-label{
+    margin-left:9px;
+    text-transform: uppercase;
+}
+#info{
+    margin-left:12px;
+}
+#buttons-container{
+    display: block;
+    position:relative;
+}
+#display-species-names{
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+}
+i{
+    border: solid black;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+    transition:.5s;
+    position: absolute;
+    margin-left:90%;
+    margin-top:-20px;
+}
+.left{
+     transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+}
+.down{
+      transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
 .noUi-tooltip .noUi-handle:hover {
     display: block;
 }
+.oxygen-container{
+    display: flex;
+    height:20px;
+    width: 133px;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+#oxygen-menu{
+    
+}
+.slider-title#oxygen{
+    margin-top: 0px;
+}
+#select-box{
+    margin:15px;
+        height:40px;
+    position:relative;
+}
+.select-wrapper{
+    position: absolute;
+    width:100%;
+    z-index:10;
+}
+.options-wrapper{
+    height:100px;
+        overflow-y: scroll;
 
+}
+.list-item p{
+    position:relative;
+    padding-left: 10px;
+    padding-top:6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin:0px;
+}
+.list-item{
+    width:100%;
+    height:30px;
+    background-color:white;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.list-item:hover{
+    background-color:aliceblue;
+}
+.list-item.selected{
+    width:100%;
+    height:30px;
+    background-color:white;
+    border-radius: 5px;
+     white-space: nowrap;
+    text-overflow: ellipsis;
+}
 .vertical-buttons-div {
     float: right;
     right: 0px;
@@ -77,11 +191,42 @@ input {
     margin-top: -15px;
     padding: 0px;
     position: relative;
-    margin-bottom: 40px;
+    margin-bottom:;
     background-color: #2F2E2F;
     z-index: 2;
 }
-
+#select-type{
+    font-family: 'Muli', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 1px;
+    line-height: 14px;
+    text-transform: uppercase;
+    display: flex;
+    flex-wrap: wrap;
+}
+.tab{
+    width: 110px;
+    height: 0;
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-top: 20px solid grey;
+    border-bottom-left-radius: 80px;
+    border-bottom-right-radius: 80px;
+    color: white;
+    font-family: Heebo;
+    text-align: center;
+    margin-left: -10px;
+    z-index: 0;
+}
+.tab.active{
+    border-top: 20px solid #2F2E2F;
+    z-index: 1;
+}
+.tab h4{
+    margin-top: -15px
+}
 .viewer-menu {
     z-index: 1;
     background-color: #4B4B4B;
@@ -339,6 +484,44 @@ h1.title {
     text-align: left; 
     text-transform: lowercase;
 
+}
+h2{
+    color: white;
+    font-size: 17px;
+    padding: 10px;
+    padding-bottom: 0px;
+    font-family: 'Muli', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-align: left; 
+    text-transform: lowercase;
+}
+h3{
+    color: white;
+    font-size: 13px;
+    padding: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    font-family: 'Muli', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-align: left; 
+    text-transform: lowercase;
+}
+h4{
+    padding-left:10px;
+    padding-top: 0px;
+    margin: 0px;
+    color: white;
+    font-size: 12px;
+    padding: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    font-family: 'Muli', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-align: left; 
+    text-transform: lowercase;
 }
 
 h6 {

@@ -21,37 +21,59 @@
 
 <body>
     <div class="parent" id="parent">
-        
+
         <div class="superbar" id="superbar">
 
             <div class="topbar">
                 <h1 class="title">mapping the deep</h1>
             </div>
+            <div id="select-type">
+                <div id='species' class='tab inactive'>
+                    <h4>Select Species</h4>
+                </div>
+                <div id='custom' class="tab active">
+                    <h4>Custom</h4>
+                </div>
+            </div>
             <div id="species-select" style="display:none">
+                <h3 id="select-basin-label">Select Species</h3>
                 <div id="select-box"></div>
                 <div id="info">
                     <div>
                         <div id="display-species-names">
-                            <img id="category">
-                            <h2 id="display-common-name">poop</h2>
-                        </div>
-                        <h3 id="display-sci-name">poop</h3>
+                            <img src='fish.png' width='75' height='75' id="category">
+                            <div>
+                                <h2 id="display-common-name"></h2>
+                                <h3 id="display-sci-name"></h3>
 
-                        <h4 id="doi">poop</h4>
+                            </div>
+                        </div>
+
+                        <h4 id="doi">DOI:</h4>
                     </div>
-                    
+
+                </div>
+                <div id="buttons-container">
+                    <h3 id="select-basin-label">Choose Basin</h3>
+                    <div id="species-basin" class="basin-menu"></div>
+                    <div id="buttons">
+                        <button class="button" id="show-species" onclick="showSpecies()">Show Me</button>
+                        <button class="button" onclick="saveDataset(data)">Save Parameters</button>
+                    </div>
                 </div>
             </div>
             <div class="sidebar" id="sidebar">
                 <h6 class="slider-title">TEMPERATURE</h6>
                 <div class="slider" id="tempSlider"></div>
-                <h6 class="slider-title">OXYGEN </h6>
-                <select id="oxygen-menu">
-                    <option id='oxy1'>mmol O&#x2082; / m&#xb3;</option>
-                    <option id='oxy2'>mL/L</option>
-                    <option id='oxy3'>mg O&#x2082; / L</option>
-                    <option id='oxy4'>mg-atoms O&#x2082; / L</option>
-                </select>
+                <div class="oxygen-container">
+                    <h6 class="slider-title" id="oxygen">OXYGEN </h6>
+                    <select id="oxygen-menu">
+                        <option id='oxy1'>mmol O&#x2082; / m&#xb3;</option>
+                        <option id='oxy2'>mL/L</option>
+                        <option id='oxy3'>mg O&#x2082; / L</option>
+                        <option id='oxy4'>mg-atoms O&#x2082; / L</option>
+                    </select>
+                </div>
                 <div class="slider" id="oxySlider"></div>
                 <h6 class="slider-title">SALINITY</h6>
                 <div class="slider" id="saltSlider"></div>
@@ -60,22 +82,13 @@
                 <div class="slider" id="yearSlider"></div>
                 <h6 class="slider-title">Depth Range</h6>
                 <div class="slider" id="depthSlider"></div>
-                <div>
-                    <h6 style="margin-top: 30px">Choose Basin</h6>
-                    <select id="basin-menu" onclick='setLayoutBool()' class="menu">
-                        <option value="0" id="world" onclick='setLayoutBool()'>World</option>
-                        <option value="1" id="northPacific" onclick='setLayoutBool()'>North Pacific</option>
-                        <option value="1" id="southPacific" onclick='setLayoutBool()'>South Pacific</option>
-                        <option value="2" id="atlantic">Atlantic</option>
-                        <option value="3" id="indian">Indian</option>
-                        <option value="4" id="arctic">Arctic</option>
-                        <option value="10" id="antarctic">Antarctic</option>
-
-                    </select>
-                </div>
-                <button class="button" onclick="showSpecies()">Display Data</button>
+                <div id="buttons-container">    
+                <h6 style="margin-top: 30px">Choose Basin</h6>
+                    <div id="custom-basin" class="basin-menu"></div>
+                <button class="button" id="show-custom" onclick="showSpecies()">Display Data</button>
                 <button class="button" onclick="saveDataset(data)">Save Parameters</button>
                 <button class="button" onclick="openSaveForm()"> Save Species to Cloud</button>
+                    </div>
 
 
 
@@ -141,7 +154,7 @@
     </div>
     <div class="testbox" id="testbox">
         <div class='formbox'>
-                    <button id="x" onclick='closeSaveForm()'>X</button>
+            <button id="x" onclick='closeSaveForm()'>X</button>
 
             <h1 class='title'>Save Species to Cloud</h1>
             <div class="item">
@@ -152,8 +165,8 @@
             </div>
             <div class="item">
                 <div class="name-item">
-                    <input type="text" name="name" id = "given-name" placeholder="your given name" />
-                    <input type="text" name="name" id = "family-name"placeholder="your family name" />
+                    <input type="text" name="name" id="given-name" placeholder="your given name" />
+                    <input type="text" name="name" id="family-name" placeholder="your family name" />
                 </div>
             </div>
             <div class="item">
@@ -170,22 +183,24 @@
                         <input type="checkbox" name="species-type" value="vertebrate"><label>Vertebrate</label><br>
                         <input type="checkbox" name="species-type" value="invertebrate"><label>Invertebrate</label><br>
                         <input type="checkbox" name="species-type" value="microorganism"><label>Microorganism</label><br>
-                         <button  onclick="saveToDatabase()">Submit to Database</button>
+                        <button onclick="saveToDatabase()">Submit to Database</button>
 
                     </div>
-                    
 
-                    </div>
+
                 </div>
             </div>
-
-            <div class="btn-block">
-            </div>
         </div>
+
+        <div class="btn-block">
+        </div>
+    </div>
     <p id='demo'></p>
     <script src='main.js'></script>
 
     <div id="myDiv">
 
     </div>
-</body></html>  
+</body>
+
+</html>
