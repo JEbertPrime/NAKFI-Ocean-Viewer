@@ -1,4 +1,5 @@
- function isEquivalent(a, b) {
+//function for determining equivalence of parameter sets
+function isEquivalent(a, b) {
             // Create arrays of property names
             var aProps = Object.getOwnPropertyNames(a);
             var bProps = Object.getOwnPropertyNames(b);
@@ -23,23 +24,76 @@
             // are considered equivalent
             return true;
         }
+//function for downloading data. Returns SpeciesData object, and warns user if data contains too many points. In future updates, may include option for scaling down resolution of data?
  async function downloadData(parameters, year){
-            
-            var url = 'https://cors-anywhere.herokuapp.com/http://jetsam.ocean.washington.edu/NAKFI5?min_temp=' + parameters.temp[0] + '&max_temp=' + parameters.temp[1] + '&min_salt=' + parameters.salt[0] + '&max_salt=' + parameters.salt[1] + '&min_o2=' + parameters.oxy[0] + '&max_o2=' + parameters.oxy[1] + '&min_year=' + year + '&max_year=' + year;
+     let basinCoords = {minLong:0,minLat:0,maxLong:0,maxLat:0};       
+            switch (basinId) {
+                case 'world':
+                     basinCoords.minLong = 0,
+                        basinCoords.maxLong = 360,
+                        basinCoords.minLat = -89,
+                        basinCoords.maxLat = 89;
+                    break;
+                case 'northPacific':
+                     basinCoords.minLong = 90,
+                        basinCoords.maxLong = 294,
+                        basinCoords.minLat = -90,
+                        basinCoords.maxLat = 67;
+                    break;
+                case 'southPacific':
+                     basinCoords.minLong = 90,
+                        basinCoords.maxLong = 294,
+                        basinCoords.minLat = -90,
+                        basinCoords.maxLat = 67;
+                    break;
+                case 'atlantic':
+                     basinCoords.minLong = 80,
+                        basinCoords.maxLong = 20,
+                        basinCoords.minLat = -80,
+                        basinCoords.maxLat = 80;
+                    break;
+                case 'indian':
+                     basinCoords.minLong = 20,
+                        basinCoords.maxLong = 120,
+                        basinCoords.minLat = -80,
+                        basinCoords.maxLat = 30
+                    break;
+                case 'arctic':
+                     basinCoords.minLong = 0,
+                        basinCoords.maxLong = 360,
+                        basinCoords.minLat = 50,
+                        basinCoords.maxLat = -50
+                    break;
+                case 'antarctic':
+                     basinCoords.minLong = 0,
+                        basinCoords.maxLong = 360,
+                        basinCoords.minLat = 40,
+                        basinCoords.maxLat = -40
+                    break;
+            }
+            var url = './php/test3.php?min_temp=' + parameters.temp[0] + '&max_temp=' + parameters.temp[1] + '&min_salt=' + parameters.salt[0] + '&max_salt=' + parameters.salt[1] + '&min_o2=' + parameters.oxy[0] + '&max_o2=' + parameters.oxy[1] + '&min_year=' + year + '&max_year=' + year + "&min_lon=" + basinCoords.minLong + "&max_lon=" + basinCoords.maxLong + "&min_lat=" + basinCoords.minLat + "&max_lat=" + basinCoords.maxLat;
+     console.log(url)
             var downloadedData =  await d3.json(url).then(function(d){
                 let data = d
                 data.depth = data.depth.map(x => -x)
                 if(data.depth.length > 250000){
-                            if(!confirm("CAUTION: This dataset contains " + data.depth.length + " points. Datasets with this many points can cause your browser to crash. Proceed?")){
+                            if(!confirm("CAUTION: This dataset contains " + data.depth.length + " points. Datasets with this many points can cause your browser to crash. Data resolution will be scaled down. Proceed?")){
                                 document.body.style.cursor = "auto"
                                 return;
                             }
+                            data.lon = data.lon.map(x => Math.round(x/4)*4)
+                            data.lat = data.lat.map(x => Math.round(x/4)*4)
                         }
+                console.log(d)
                 return data
             })
+            
             console.log(downloadedData)
             return new SpeciesData(downloadedData)
         }
+function reduceDataRes(data, factor){
+    
+}
 function updateOpacity(){
             if(isUpdate){
             var opacityValue = (opacitySlider.noUiSlider.get()) / 100;
@@ -186,7 +240,7 @@ function saveToDatabase(){
                 referenceDoiUrl = document.getElementById("reference-doi-url").value,
                 checkboxes = document.getElementById("checkboxes"),
                 speciesType
-            let url = "php/test.php";
+            let url = "./php/test.php";
             
             for(let i = 0; i<checkboxes.children.length; i++){
                 console.log(checkboxes.children[i])
@@ -196,6 +250,27 @@ function saveToDatabase(){
                     }
                 }
             }
+            
+            let params = "name=" + commonName + "&sci_name=" + sciName + "&species_type=" + speciesType + "&oxy_min=" + allParams.oxy[0] + "&oxy_max=" + allParams.oxy[1] + "&salt_min=" + allParams.salt[0] + "&salt_max=" + allParams.salt[1] + "&temp_min=" + allParams.temp[0] + "&temp_max=" + allParams.temp[1] + "&given_name=" + givenName + "&family_name=" + familyName + "&reference_doi=" + referenceDoi + "&reference_doi_url=" + encodeURIComponent(referenceDoiUrl) ;
+            console.log(params)
+            let http = new XMLHttpRequest();
+            
+
+            http.open("GET", url+"?"+params, true);
+            http.onreadystatechange = function()
+            {
+                if(http.readyState == 4 && http.status == 200) {
+                    console.log(http.responseText);
+                }
+            }
+            http.send(null);
+            document.getElementById("testbox").style.display = "none"
+            setTimeout(function () {
+                
+                    cloudSpeciesList()
+                
+            }, 2000);
+
 }
 function switchOcean(long){
             let longTemp = []
@@ -405,15 +480,18 @@ function filterByDepth(data1) {
                 document.body.style.cursor = 'wait';
             console.log('done')
         }
-        function showSpecies(){
+        function showSpecies(panel){
             cursorWaiting()
-            setTimeout(function(){buttonClick()},100);
+            setTimeout(function(){buttonClick(panel)},100);
         }
-        async function buttonClick() {
+        async function buttonClick(panel) {
             var tempValues = tempSlider.noUiSlider.get(),
                 oxyValues = oxySlider.noUiSlider.get(),
                 saltValues = saltSlider.noUiSlider.get(),
                 selectYear = yearSlider.noUiSlider.get();
+            var basinCoords;
+            setBasinId(panel)
+            
             oxyValues[0] = parseFloat(oxyValues[0])*oxyUnitConversion
             oxyValues[1] = parseFloat(oxyValues[1])*oxyUnitConversion
             console.log(oxyValues)
@@ -491,7 +569,7 @@ function filterByDepth(data1) {
                 speciesOneParams[1] = 0
             }
             speciesOneParams[0] = JSON.parse(JSON.stringify(savedData.params[saveSelect]));
-            
+            setBasinId(basin='world')
             if(!isEquivalent(speciesOneParams[0],speciesOneParams[1])){
                 speciesOne = await downloadData(speciesOneParams[0], speciesOneYear)
                 speciesOneParams[1] = speciesOneParams[0]
@@ -506,6 +584,8 @@ function filterByDepth(data1) {
             speciesTwoYear = document.getElementById("speciesTwoYear").value
             var saveSelect = speciesList2.options[speciesList2.selectedIndex].value, speciesTwoParams = [];
             speciesTwoYear = document.getElementById("speciesTwoYear").value
+            setBasinId(basin='world')
+
             if(!speciesTwoParams[1]){
                 speciesTwoParams[1] = 0
             }
@@ -612,10 +692,24 @@ function updateFishInfo(selectObject){
     oxySlider.noUiSlider.set([critter.oxygen_min, critter.oxygen_max])
     
 }
-function setBasinId(selectObject){
-    let index = selectObject.getSelectedItem()[1]
-    basinId = basinIds[index]
-    setLayoutBool()
+function setBasinId(panel, basin=null){
+    let index
+    if(!basin){
+    switch (panel){
+        case 0: 
+            index = speciesBasinList.getSelectedItem()[1]
+            basinId = basinIds[index]
+            setLayoutBool()
+            break;
+        case 1:
+            index = customBasinList.getSelectedItem()[1]
+            basinId = basinIds[index]
+            setLayoutBool()
+            break;
+    }}
+    else if(basin){
+        basinId = basin
+    }
 }
 
 function setLayoutBool() {
@@ -640,11 +734,24 @@ class SpeciesData{
         for(let i in this.lon){
             this.stringArray[i] = this.lon[i] + ", " + this.lat[i] + ", " + this.depth[i]
         }
-        
+    }
+    removeDuplicates(){
+        for(let i in this.stringArray){
+            if(this.stringArray.indexOf(this.stringArray[i])!== i){
+                delete this.lon[i]
+                delete this.lat[i]
+                delete this.depth[i]
+                delete this.o2[i]
+                delete this.salt[i]
+                delete this.temp[i]
+                delete this.year[i]
+                console.log('dupe')
+            }
+        }
     }
 }
 class CustomSelect{
-    constructor(id, list=null, clickEvent){
+    constructor(id, list=null, clickEvent=null){
         this.id = id
         this.element = d3.select("#" + id)
         this.element.attr('class','custom-select')
@@ -682,7 +789,9 @@ class CustomSelect{
                 .attr('id',this.list[i])
                 .on('click', function(){
                     self.clickHandler(this)
+                if(self.clickEvent) {   
                     self.clickEvent(self)
+            }
             })
                 .append('p')
                 .attr('id',this.list[i])
@@ -702,7 +811,7 @@ class CustomSelect{
         }
         else if(element.classList.contains('selected')&& this.open){
             this.optionsWrapper.style('display','none').style('pointer-events','none')
-            this.arrow.attr('class','down')
+            this.arrow.attr('class','left')
             this.selectedItem.style('border-radius','5px')
             this.open = false
 

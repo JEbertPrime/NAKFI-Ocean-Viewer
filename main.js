@@ -55,8 +55,8 @@ var data, savedData = {
         if (Cookies.get('views')) {
             views = JSON.parse(Cookies.get('views'))
         }
-        var speciesBasinList = new CustomSelect('species-basin', basins,setBasinId)
-        var customBasinList = new CustomSelect('custom-basin', basins,setBasinId)
+        var speciesBasinList = new CustomSelect('species-basin', basins)
+        var customBasinList = new CustomSelect('custom-basin', basins)
         cloudSpeciesList()
         dataList(savedData, saveList)
         dataList(savedData, speciesList1)
@@ -452,7 +452,18 @@ var data, savedData = {
                     z: [depth,oceanDepth],
                     opacity: [1,opacityValue],
                     group: [depthOpac,undefined],
-                    
+                     marker: {
+                        opacity: 1,
+                        size: 3,
+                        cmin: -1000,
+                        cmax: 0,
+                        colorscale: [
+                            ['0.0', 'rgb(165,0,38)'],
+                            ['0.555555555556', 'rgb(255,191,0)'],
+                            ['1.0', 'rgb(35,136,35)']
+                        ],
+                        color: depth
+                    },
                     hovertext: year
 
                 }, {

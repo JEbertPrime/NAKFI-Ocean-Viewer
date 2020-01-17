@@ -16,7 +16,7 @@ body.waiting {
     width: 17vw;
     min-width: 300px;
     box-shadow: 3px 0px 5px grey;
-    z-index: 0;
+    z-index: 1;
     position: fixed;
     margin-top: -20px;
     overflow: hidden;
@@ -48,7 +48,7 @@ body.waiting {
 #species-basin{
     margin:15px;
     margin-top: 0px;
-    width:80%;
+    width:50%;
     height:40px;
     position:relative;
 }
@@ -56,7 +56,7 @@ body.waiting {
     margin:1px;
     margin-top: 0px;
     margin-bottom: 5px;
-    width:60%;
+    width:50%;
     height:40px;
     position:relative;
 }
@@ -131,7 +131,9 @@ i{
 .options-wrapper{
     height:100px;
         overflow-y: scroll;
-
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+width:100%;
 }
 .list-item p{
     position:relative;
@@ -485,6 +487,9 @@ h1.title {
     text-transform: lowercase;
 
 }
+#name-container{
+    width: 60%
+}
 h2{
     color: white;
     font-size: 17px;
@@ -495,6 +500,12 @@ h2{
     letter-spacing: 0.2px;
     text-align: left; 
     text-transform: lowercase;
+    text-overflow: ellipsis;
+    
+}
+h2#display-common-name{
+    padding-top: 0px;
+    margin-top: 0px;
 }
 h3{
     color: white;
@@ -507,6 +518,7 @@ h3{
     letter-spacing: 0.2px;
     text-align: left; 
     text-transform: lowercase;
+    text-overflow: ellipsis;
 }
 h4{
     padding-left:10px;
