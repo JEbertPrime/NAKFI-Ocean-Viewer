@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="26px" height="26px" viewBox="0 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>Search_onClick_state</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="UI" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="UI-TOP-NAV-rollover-&amp;-click-states" transform="translate(-1072.000000, -167.000000)" fill="#FFFFFF" stroke="#4A4A4A">
+            <g id="Search_onClick_state" transform="translate(1073.000000, 168.000000)">
+                <g id="Group-2">
+                    <path d="M16.723153,13.9919175 L24.5311585,21.875 L21.9047619,24.5266504 L13.8352534,16.3795505 C12.4887251,17.0935561 10.9356849,17.5 9.28571429,17.5 C4.17850761,17.5 0,13.6058287 0,8.75 C0,3.8941713 4.17850761,0 9.28571429,0 C14.392921,0 18.5714286,3.8941713 18.5714286,8.75 C18.5714286,10.7211597 17.8828744,12.5338529 16.723153,13.9919175 Z M9.28571429,15 C13.0676622,15 16.0952381,12.1784425 16.0952381,8.75 C16.0952381,5.32155746 13.0676622,2.5 9.28571429,2.5 C5.50376641,2.5 2.47619048,5.32155746 2.47619048,8.75 C2.47619048,12.1784425 5.50376641,15 9.28571429,15 Z" id="Oval-2" stroke-width="0.35" fill-rule="nonzero"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

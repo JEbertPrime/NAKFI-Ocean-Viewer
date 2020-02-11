@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <title>Mapping the Deep</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src='modules/functions.js'></script>
@@ -41,7 +42,7 @@
                 <div id="info">
                     <div>
                         <div id="display-species-names">
-                            <img src='fish.png' width='75' height='75' id="category">
+                            <img   width='75' height='75' id="category-svg">
                             <div id="name-container">
                                 <h2 id="display-common-name"></h2>
                                 <h3 id="display-sci-name"></h3>
@@ -49,16 +50,21 @@
                             </div>
                         </div>
 
-                        <h4 id="doi">DOI:</h4>
+                        <h4 id="doi"></h4>
                     </div>
 
+                </div>
+                <div id = 'year-slider-div'>
+                <h6 class="slider-title">YEAR</h6>
+
+                <div class="slider" id="yearSliderSpecies"></div>
                 </div>
                 <div id="buttons-container">
                     <h3 id="select-basin-label">Choose Basin</h3>
                     <div id="species-basin" class="basin-menu"></div>
                     <div id="buttons">
-                        <button class="button" id="show-species" onclick="showSpecies(0)">Show Me</button>
-                        <button class="button" onclick="saveDataset(data)">Save Parameters</button>
+                        <button class="button-alt" id="show-species" onclick="showSpecies(0)">Show Me</button>
+                        <button class="button-alt" onclick="saveDataset(data)">Save to Local</button>
                     </div>
                 </div>
             </div>
@@ -79,15 +85,17 @@
                 <div class="slider" id="saltSlider"></div>
                 <h6 class="slider-title">YEAR</h6>
 
-                <div class="slider" id="yearSlider"></div>
+                <div class="slider" id="yearSliderCustom"></div>
                 <h6 class="slider-title">Depth Range</h6>
                 <div class="slider" id="depthSlider"></div>
                 <div id="buttons-container">    
-                <h6 style="margin-top: 30px">Choose Basin</h6>
+                <h6 id="choose-basin">Choose Basin</h6>
                     <div id="custom-basin" class="basin-menu"></div>
                 <button class="button" id="show-custom" onclick="showSpecies(1)">Show Me</button>
-                <button class="button" onclick="saveDataset(data)">Save Parameters</button>
-                <button class="button" onclick="openSaveForm()"> Save Species to Cloud</button>
+                    <div id="buttons">
+                        <button class="button-alt" onclick="saveDataset(data)">Save to Local</button>
+                        <button class="button-alt" onclick="openSaveForm()"> Save to Cloud</button>
+                    </div>
                     </div>
 
 

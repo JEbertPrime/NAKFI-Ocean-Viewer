@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css?family=Heebo|Muli&display=swap');
+
+.header{
+    display: inline-block;
+    align-content: center;
+    width: 70vw;
+    margin-left: 15vw;
+}
+.sub-titles{
+    width: 100px;
+    float: right;
+    margin-right: 3vw;
+    display: flex;
+}
+.sub-title{
+    margin: 10px;
+    font-family: Heebo;
+    font-weight: 300;
+}
+#main-title{
+    float: left;
+    font-family: Muli;
+    font-weight: 900;
+    font-size: 1.2em
+}
+.row{
+    display: flex;
+    width: 70vw;
+    margin-left: 15vw;
+}
+.row #main{
+    
+}
+.button-block{
+    width: 40%;
+    float: left;
+    margin-right: 10%;
+    
+}
+h2{
+    font-family:Muli;
+    font-weight:50;
+    font-size: 1em
+}
+h3{
+    font-family: Muli;
+    font-weight: 600;
+}
+p{
+    font-family:Heebo;
+    font-weight:50;
+    font-size: .7em;
+}
+.button{
+    width:50%;
+    max-width: 150px;
+    height: 25px;
+    padding-top: 5px;
+    background: black;
+    text-align: center;
+    cursor: pointer;
+}
+div.button a{
+    font-family: Heebo;
+    font-weight: 100;
+    font-size: 80%;
+    color: white;
+    text-align: center;
+ 
+}
+#main-img{
+    width:50%;
+    float: right;
+}
+.row#features{
+    background-color:#E4E4E4
+}
+div.feature{
+    width:25%;
+    padding-top: 20px;
+    margin: auto;
+    text-align: center;
+}
+div.feature p{
+    min-width:150px;
+    width: 60%;
+    margin: auto;
+}
+div.feature img{
+    width:80%;
+}
+.row#example-1{
+    padding-left: 7%;
+    height: 20%;
+}
+div#example-1 img{
+    width: 30%;
+    margin:auto;
+}
+.row#example-2{
+    height: 20%;
+    margin: auto;
+}
+div#example-2 img{
+    width: 30%;
+    margin: auto;
+    margin-left: 7%;
+    margin-right: 20%
+}
+.example-text{
+    margin-top: 10%;
+    width: 30%;
+}

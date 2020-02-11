@@ -16,13 +16,14 @@ var data, savedData = {
             depthDataArray, speciesOneYear = 1861,
             speciesTwoYear = 1861,
             relayoutBool = false,
-            basins = ['World','North Pacific','South Pacific','Atlantic','Indian','Arctic','Antarctic'],
+            basins = ['World','North Pacific','South Pacific','Atlantic','Indian','Arctic','Antarctic', 'Custom'],
             basinIds = ['world','northPacific','southPacific','atlantic','indian','arctic','antarctic'],
             basinId = 'world';
         var tempSlider = document.getElementById('tempSlider'),
             oxySlider = document.getElementById('oxySlider'),
             saltSlider = document.getElementById('saltSlider'),
-            yearSlider = document.getElementById('yearSlider'),
+            yearSliderCustom = document.getElementById('yearSliderCustom'),
+            yearSliderSpecies = document.getElementById('yearSliderSpecies'),
             opacitySlider = document.getElementById('opacitySlider'),
             depthSlider = document.getElementById('depthSlider'),
             allSliderValues = [];
@@ -44,7 +45,8 @@ var data, savedData = {
             speciesList1 = document.getElementById("speciesList1"),
             speciesList2 = document.getElementById("speciesList2"),
             viewsList = document.getElementById('viewsList'),
-            camLayout, oxyUnitConversion = 1, maxOxyValue = 400, oxyStep = 5, oxyDecimals = 0;
+            camLayout, oxyUnitConversion = 1, maxOxyValue = 400, oxyStep = 5, oxyDecimals = 0,
+            cloudSpeciesSelect;
         /*d3.csv("http://temp.justinebert.com/depths.csv", function(rows) {
             depthData.push(rows);
             });*/
@@ -55,8 +57,8 @@ var data, savedData = {
         if (Cookies.get('views')) {
             views = JSON.parse(Cookies.get('views'))
         }
-        var speciesBasinList = new CustomSelect('species-basin', basins)
-        var customBasinList = new CustomSelect('custom-basin', basins)
+        var speciesBasinList = new CustomSelect({id:'species-basin', list: basins, clickEvent:null,defaultSelected:'World', eventTrigger:'Custom', triggeredEvent:customBasin})
+        var customBasinList = new CustomSelect({id:'custom-basin', list:basins, clickEvent:null, defaultSelected:'World',eventTrigger:'Custom', triggeredEvent:customBasin})
         cloudSpeciesList()
         dataList(savedData, saveList)
         dataList(savedData, speciesList1)
@@ -69,7 +71,7 @@ var data, savedData = {
         
 
         noUiSlider.create(tempSlider, {
-            start: [20, 25],
+            start: [5, 15],
             connect: true,
             tooltips: [wNumb({
                 decimals: 0
@@ -96,7 +98,7 @@ var data, savedData = {
 
         //Oxygen Slider
         noUiSlider.create(oxySlider, {
-            start: [200, 220],
+            start: [200, 250],
             connect: true,
             tooltips: [wNumb({
                 decimals: oxyDecimals
@@ -129,7 +131,7 @@ var data, savedData = {
             console.log(maxOxyValue,oxyStep,oxyDecimals)
             oxySlider.noUiSlider.destroy()
                 noUiSlider.create(oxySlider, {
-            start: [200, 220],
+            start: [200, 250],
             connect: true,
             tooltips: [wNumb({
                 decimals: oxyDecimals
@@ -177,11 +179,9 @@ var data, savedData = {
             document.getElementById('salt-slider-value-upper')
         ];
 
-        /*saltSlider.noUiSlider.on('update', function (values, handle) {
-            saltSnapValues[handle].innerHTML = 'Salinity: ' + values[handle] + '';
-        });*/
-        noUiSlider.create(yearSlider, {
-            start: [26],
+//Year Slider/Custom
+        noUiSlider.create(yearSliderCustom, {
+            start: [2020],
             tooltips: wNumb({
                 decimals: 0
             }),
@@ -195,7 +195,42 @@ var data, savedData = {
                 mode: 'positions',
                 values: [0, 25, 50, 75, 100],
                 density: 4
+            },
+            format: {
+                to: function (value){
+                    return parseInt(value)
+                },
+                from: function (value){
+                    return parseInt(value)
+                }
             }
+        });
+//yearSlider/Species
+noUiSlider.create(yearSliderSpecies, {
+            start: [2020],
+            tooltips: wNumb({
+                decimals: 0
+            }),
+            connect: true,
+            step: 1,
+            range: {
+                'min': 1861,
+                'max': 2100,
+            },
+            pips: {
+                mode: 'positions',
+                values: [0, 25, 50, 75, 100],
+                density: 4
+            },
+            format: {
+                to: function (value){
+                    return parseInt(value)
+                },
+                from: function (value){
+                    return parseInt(value)
+                }
+            }
+    
         });
         noUiSlider.create(opacitySlider, {
             start: [100],
@@ -215,7 +250,7 @@ var data, savedData = {
             }
         });
         noUiSlider.create(depthSlider, {
-            start: [0, 3000],
+            start: [100, 1000],
             connect: true,
             tooltips: [wNumb({
                 decimals: 0
@@ -262,7 +297,7 @@ var data, savedData = {
         
 
 
-        function makePlotly(lat, long, depth, year) {
+        function makePlotly(lat, long, depth, year,title) {
             var longDepth = depthData.long,
                 latDepth = depthData.lat,
                 oceanDepth = depthData.depth
@@ -362,6 +397,9 @@ var data, savedData = {
             var plotDiv = document.getElementById("plot");
 
             var layout = {
+                title:{
+                    text: title
+                },
                 autosize: true,
                 font: {
                     family: 'Heebo',
@@ -387,7 +425,7 @@ var data, savedData = {
                     },
                     zaxis: {
                         nticks: 3,
-                        range: [-6000, 1],
+                        range: [-6000, 2],
                         title: 'Depth',
                     },
                     camera: {
@@ -399,7 +437,6 @@ var data, savedData = {
                     }
                 }
             };
-            console.log(layout,"poop")
             var dataset = [{
                     type: 'scatter3d',
                     mode: 'markers',
@@ -409,13 +446,20 @@ var data, savedData = {
                     opacity: 1,
                     group: depthOpac,
                     marker: {
+                        showscale: true,
+                        colorbar:{
+                            tickmode:"array",
+                            tickvals:[0,-500,-1000,-3000,-5000],
+                            ticktext:['Surface','500m','1000m','3000m','5000m']
+                        },
                         opacity: 1,
                         size: 3,
-                        cmin: -1000,
+                        cmin: -5000,
                         cmax: 0,
                         colorscale: [
                             ['0.0', 'rgb(165,0,38)'],
-                            ['0.555555555556', 'rgb(255,191,0)'],
+                            ['0.8', 'rgb(165,0,38)'],
+                            ['0.9', 'rgb(255,191,0)'],
                             ['1.0', 'rgb(35,136,35)']
                         ],
                         color: depth
@@ -429,23 +473,23 @@ var data, savedData = {
                     x: newLongDepth,
                     y: latDepth,
                     z: oceanDepth,
+                    flatshading:false,
                     showscale: false,
                     cmin: -6000,
-                    cmax: 100,
+                    cmax: 1,
                     hoverinfo: "none",
                     color: oceanDepth,
                     intensity: oceanDepth,
                     colorscale: [
                         ['0', 'rgb(10,10,140)'],
-                        ['.96', 'rgb(100,180,240)'],
-                        ['.97', 'rgb(210,180,140)'],
+                        ['.998', 'rgb(100,180,240)'],
+                        ['.999', 'rgb(210,180,140)'],
                         ['1', 'rgb(210,180,140)']
                     ],
                 }
             ];
 
             if (isUpdate && relayoutBool) {
-                console.log("update layout", dataset, long)
                 Plotly.update('myDiv', {
                     x: [newLong, newLongDepth],
                     y: [lat,latDepth],
@@ -453,13 +497,15 @@ var data, savedData = {
                     opacity: [1,opacityValue],
                     group: [depthOpac,undefined],
                      marker: {
+                        showscale: true,
                         opacity: 1,
                         size: 3,
-                        cmin: -1000,
+                        cmin: -5000,
                         cmax: 0,
                         colorscale: [
                             ['0.0', 'rgb(165,0,38)'],
-                            ['0.555555555556', 'rgb(255,191,0)'],
+                            ['0.8', 'rgb(165,0,38)'],
+                            ['0.9', 'rgb(255,191,0)'],
                             ['1.0', 'rgb(35,136,35)']
                         ],
                         color: depth
@@ -482,13 +528,16 @@ var data, savedData = {
                     opacity: [1,undefined],
                     group: [depthOpac,undefined],
                     marker: {
+                                                showscale: true,
+
                         opacity: 1,
                         size: 3,
-                        cmin: -1000,
+                        cmin: -5000,
                         cmax: 0,
                         colorscale: [
                             ['0.0', 'rgb(165,0,38)'],
-                            ['0.555555555556', 'rgb(255,191,0)'],
+                            ['0.8', 'rgb(165,0,38)'],
+                            ['0.9', 'rgb(255,191,0)'],
                             ['1.0', 'rgb(35,136,35)']
                         ],
                         color: depth
@@ -501,7 +550,7 @@ var data, savedData = {
                 Plotly.newPlot('myDiv', dataset, layout, {
                     responsive:true,
                     editable:true,
-                    displayModeBar: false
+                    modebar: true
                    
                 });
 

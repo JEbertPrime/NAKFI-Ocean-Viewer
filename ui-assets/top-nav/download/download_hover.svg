@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="19px" viewBox="0 0 16 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>Dowload_on_hover</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="UI" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="UI-TOP-NAV-rollover-&amp;-click-states" transform="translate(-255.000000, -425.000000)" fill="#9B9B9B">
+            <g id="Dowload_on_hover" transform="translate(255.000000, 425.000000)">
+                <path d="M14.6292148,8.96346469 L8.06737436,15.6247147 L1.37076748,8.96346469 L3.12354776,7.24235061 L6.8089448,10.9083128 L6.8089448,-3.41948692e-14 L9.28089359,-3.41948692e-14 L9.28089359,10.8635154 L12.8763635,7.24235061 L14.6292148,8.96346469 Z M-1.59872116e-14,16.5412686 L16,16.5412686 L16,19 L-1.59872116e-14,19 L-1.59872116e-14,16.5412686 Z" id="Combined-shape-10130"></path>
+            </g>
+        </g>
+    </g>
+</svg>

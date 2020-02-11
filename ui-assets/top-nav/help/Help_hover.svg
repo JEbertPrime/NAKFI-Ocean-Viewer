@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="11px" height="19px" viewBox="0 0 11 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>Help_on_hover</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="UI" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" font-family="AvenirNext-DemiBold, Avenir Next" font-size="24" font-weight="500" letter-spacing="0.672">
+        <g id="UI-TOP-NAV-rollover-&amp;-click-states" transform="translate(-365.000000, -534.000000)" fill="#9B9B9B">
+            <g id="Help_on_hover" transform="translate(364.000000, 528.000000)">
+                <text id="?">
+                    <tspan x="0" y="24">?</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -40,10 +40,103 @@ body.waiting {
     z-index: 1;
 
 }
+#year-slider-div{
+    margin-left:10px;
+}
+.slider-title{
+    margin-left: 10px;
+}
+.cboutline{
+    stroke-opacity:o !important;
+}
 #buttons{
     margin-top:10px;
-    margin-left:15px;
+    margin-left:10px;
     position: relative;
+    width: 100%;
+    align-content:space-between;
+}
+button.vertical span {
+    position: relative;
+    display: inline-block;
+    transform: rotate(90deg);
+    width: 90px;
+    right: 35px;
+}
+#buttons-container{
+    display: block;
+    position:relative;
+}
+button.vertical {
+    width: 15px;
+    height: 100px;
+    padding: 0px;
+    margin-left: 8px;
+    z-index: 2;
+
+    a {
+        font-size: 40%;
+    }
+}
+.button-alt {
+    width:39.5%;
+    height: 20px;
+    border-radius: 1px;
+    background-color: #2F2E2F;
+    
+    color: white;
+}
+.button-alt:active{
+    background-color:#242324; 
+}
+#viewer-button {
+    margin-top: 4.5vh
+}
+
+#data-button {
+    margin-top: 150px
+}
+.vertical-buttons-div {
+    float: right;
+    right: 0px;
+    position: absolute;
+    width: 10%;
+}
+button {
+    background-color: #E1E1D5;
+    border-radius: 2px;
+    border: none;
+    font-family: 'Muli', sans-serif;
+    -webkit-transition-duration: 0.2s;
+    /* Safari */
+    transition-duration: 0.2s;
+}
+#buttons#sspecies{
+    margin-left:10px;
+}
+button:hover {}
+#x{
+    font-family: Arial, sans-serif;
+    font-weight:300;
+    position:absolute;
+    float:right;
+    background:none;
+    border:none;
+    top:10px;
+    right:10px;
+    margin-bottom: -40px;
+}
+button:active {
+    background-color: #D2D3CF;
+    -webkit-transition-duration: 0.1s;
+    /* Safari */
+    transition-duration: 0.1s;
+}
+#show-custom{
+    border-radius: 1px;
+    width: 80%;
+    margin-left: 10px;
+    height: 25px
 }
 #species-basin{
     margin:15px;
@@ -53,9 +146,9 @@ body.waiting {
     position:relative;
 }
 #custom-basin{
-    margin:1px;
     margin-top: 0px;
     margin-bottom: 5px;
+    margin-left: 10px;
     width:50%;
     height:40px;
     position:relative;
@@ -75,10 +168,7 @@ body.waiting {
 #info{
     margin-left:12px;
 }
-#buttons-container{
-    display: block;
-    position:relative;
-}
+
 #display-species-names{
     position: relative;
     display: flex;
@@ -113,6 +203,7 @@ i{
     margin-bottom: 2px;
 }
 #oxygen-menu{
+    margin-left: 10px;
     
 }
 .slider-title#oxygen{
@@ -149,6 +240,7 @@ width:100%;
     background-color:white;
     white-space: nowrap;
     text-overflow: ellipsis;
+    font-family: "Heebo"
 }
 .list-item:hover{
     background-color:aliceblue;
@@ -161,12 +253,7 @@ width:100%;
      white-space: nowrap;
     text-overflow: ellipsis;
 }
-.vertical-buttons-div {
-    float: right;
-    right: 0px;
-    position: absolute;
-    width: 10%;
-}
+
 
 input {
     width: 45px;
@@ -207,18 +294,20 @@ input {
     text-transform: uppercase;
     display: flex;
     flex-wrap: wrap;
+    align-content: center;
+    margin-left: 15px;
 }
 .tab{
     width: 110px;
     height: 0;
-    border-left: 11px solid transparent;
-    border-right: 11px solid transparent;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
     border-top: 20px solid grey;
     border-bottom-left-radius: 80px;
     border-bottom-right-radius: 80px;
+    
     color: white;
     font-family: Heebo;
-    text-align: center;
     margin-left: -10px;
     z-index: 0;
 }
@@ -226,8 +315,21 @@ input {
     border-top: 20px solid #2F2E2F;
     z-index: 1;
 }
+.tab.active h4{
+    color: white;
+}
+.tab.inactive h4{
+    color: lightgray;
+}
 .tab h4{
-    margin-top: -15px
+    margin-top: -17px;
+     
+}
+.tab#custom h4{
+    margin-left: 23px
+}
+.tab#species h4{
+    margin-left: 4px
 }
 .viewer-menu {
     z-index: 1;
@@ -386,33 +488,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 }
 
-button.vertical span {
-    position: relative;
-    display: inline-block;
-    transform: rotate(90deg);
-    width: 90px;
-    right: 35px;
-}
-
-button.vertical {
-    width: 15px;
-    height: 100px;
-    padding: 0px;
-    margin-left: 8px;
-    z-index: 2;
-
-    a {
-        font-size: 40%;
-    }
-}
-
-#viewer-button {
-    margin-top: 4.5vh
-}
-
-#data-button {
-    margin-top: 150px
-}
 
 @media (max-width: 1756px) {
     .viewer-menu.show {
@@ -530,7 +605,7 @@ h4{
     padding-top: 0px;
     padding-bottom: 0px;
     font-family: 'Muli', sans-serif;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.2px;
     text-align: left; 
     text-transform: lowercase;
@@ -568,7 +643,10 @@ h6.slider-title {
     line-height: 14px;
     text-transform: uppercase;
 }
-
+h6#choose-basin{
+    margin-top: 20px; 
+    margin-left:10px;
+}
 .noUi-value-large{
     font-family: "Heebo", sans-serif;
     font-weight: 400;
@@ -578,34 +656,7 @@ h6.slider-title {
     line-height: 12px;
 }
 
-button {
-    background-color: #E1E1D5;
-    border-radius: 2px;
-    border: none;
-    font-family: 'Muli', sans-serif;
-    -webkit-transition-duration: 0.2s;
-    /* Safari */
-    transition-duration: 0.2s;
-}
 
-button:hover {}
-#x{
-    font-family: Arial, sans-serif;
-    font-weight:300;
-    position:absolute;
-    float:right;
-    background:none;
-    border:none;
-    top:10px;
-    right:10px;
-    margin-bottom: -40px;
-}
-button:active {
-    background-color: #D2D3CF;
-    -webkit-transition-duration: 0.1s;
-    /* Safari */
-    transition-duration: 0.1s;
-}
 
 .menu {
     margin-top: 10px;
