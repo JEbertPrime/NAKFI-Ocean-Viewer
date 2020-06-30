@@ -3,4 +3,4 @@ A tool to view marine habitat space in three dimensions. Users input a variety o
 
 This project is funded by a grant from the National Academies Keck Futures Initiative. My supervisors are Julie Spivey, and Dr. Patricia Yager at the University of Georgia.
 
-A demo of the current version can be found [here.](mappingthedeep.uga.edu/ocean-viewer)
+A demo of the current version can be found [here.](http://mappingthedeep.uga.edu/ocean-viewer)
